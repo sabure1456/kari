@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ぷよぷよ風ゲーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="title-screen" class="fullscreen-overlay">
+    <h1>ぷよぷよ風ゲーム</h1>
+    <div class="button-group">
+      <button id="mode-a">Aモード</button>
+      <button id="mode-b">Bモード</button>
+    </div>
+  </div>
+
+  <div id="difficulty-selection-screen" class="fullscreen-overlay" style="display: none;">
+    <h2>難易度を選んでね</h2>
+    <div class="button-group">
+      <button id="easy-btn" class="difficulty-btn">かんたん</button>
+      <button id="normal-btn" class="difficulty-btn">ふつう</button>
+      <button id="hard-btn" class="difficulty-btn">むずかしい</button>
+    </div>
+  </div>
+
+  <div id="puyo-selection-screen" class="fullscreen-overlay" style="display: none;">
+    <h2>使うぷよを選んでね (5個)</h2>
+    <div id="puyo-choices-container"></div>
+    <button id="reset-selection-btn">選びなおす</button>
+    <div id="confirmation-popup" class="fullscreen-overlay" style="display: none;">
+      <div class="popup-content">
+        <p>このぷよでプレイする？</p>
+        <div class="button-group">
+          <button id="confirm-yes-btn">はい</button>
+          <button id="confirm-no-btn">いいえ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="game-container" style="display: none;">
+    <div id="image-display-area"></div>
+    <div id="game-screen">
+      <p>← →：移動　↓：落下　R：リスタート</p>
+      <canvas id="gameCanvas" width="240" height="480"></canvas>
+      <p id="status"></p>
+      <div id="controls">
+        <button id="left">←</button>
+        <button id="down">↓</button>
+        <button id="right">→</button>
+        <button id="rotate">回転</button>
+        <button id="reset">R</button>
+      </div>
+    </div>
+    <div id="side-panel">
+      <h3>SCORE</h3>
+      <p id="score-display">0</p>
+      <div id="score-popup-container"></div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
