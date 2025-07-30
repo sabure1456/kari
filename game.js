@@ -122,7 +122,9 @@ function showGameOverPopup() {
     playSound(SOUNDS.gameOver);
     const message = `ゲームオーバー！<br>
                    感想はこちらのコメント欄へ↓<br>
-                   <a href="https://example.com" target="_blank">（リンク）</a>`;
+                   <a href="https://www.youtube.com/@rentoasobou" target="_blank">
+                   <h4>クリックでyoutubeの動画に移ります</h4>
+                   </a>`;
     gameOverText.innerHTML = message;
     gameOverPopup.style.display = 'flex';
 }
