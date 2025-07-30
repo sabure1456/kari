@@ -3,12 +3,68 @@ body, html {
 }
 
 body {
-  background: url("background.jpg") no-repeat center center fixed;
+  background-image: url("images/background/background_all_middle.png");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   background-size: cover;
+  background-position: left center;
   margin: 0;
   padding: 0;
   font-family: sans-serif;
   text-align: center;
+}
+
+#back-to-title-btn {
+  position: fixed;
+  top: 40px;
+  left: calc(50% - 240px);
+  z-index: 200;
+  padding: 8px 16px;
+  font-size: 14px;
+  white-space: nowrap;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+  display: none;
+}
+
+/* ---汎用ボタンスタイル --- */
+.btn-effect {
+  display: inline-block;
+  background: #b0c5e9;
+  border: 1px solid white;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+  padding: 0;
+}
+
+.btn-effect:hover {
+  background-color: #9aadc7;
+}
+
+.btn-effect span {
+  display: block;
+  padding: inherit;
+  font-size: inherit;
+}
+
+/* --- モード選択ボタンなどのスタイル --- */
+#title-screen .button-group button,
+#difficulty-selection-screen .button-group button,
+#puyo-selection-screen #reset-selection-btn,
+.popup-content button {
+  padding: 12px 28px;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+  font-size: 18px;
+}
+
+/* モード選択と難易度選択ボタンの文字を少し大きくする */
+#title-screen .button-group button,
+#difficulty-selection-screen .button-group button {
+    font-size: 22px;
 }
 
 /* --- 画面全体に適用されるオーバーレイの基本スタイル --- */
@@ -23,29 +79,29 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 100;
-  /* 背景の黒いオーバーレイは削除 */
 }
 
 /* --- タイトル画面 & 難易度選択画面 --- */
 #title-screen h1, #difficulty-selection-screen h2, #puyo-selection-screen h2 {
   font-size: 2.5em;
   margin-bottom: 30px;
-  color: #333; /* 背景画像に対して見やすい濃い色に変更 */
-  text-shadow: 1px 1px 3px white;
-}
-
-#title-screen .button-group button, #difficulty-selection-screen .button-group button {
-  font-size: 24px;
-  padding: 15px 30px;
-  margin: 0 10px;
-  background: #444;
   color: white;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px #000;
-  cursor: pointer;
+  text-shadow: 1px 1px 3px #333;
 }
 
+#title-screen .button-group button,
+#difficulty-selection-screen .button-group button {
+  margin: 0 10px;
+}
+/* テキストの背景スタイル */
+.text-bg {
+    background: rgba(255, 255, 255, 0.7);
+    color: black;
+    font-weight: bold;
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
 /* --- Bモード: ぷよ選択画面 --- */
 #puyo-choices-container {
   display: flex;
@@ -58,29 +114,19 @@ body {
 .puyo-choice-item {
   position: relative;
   width: 80px;
-  height: 80px;
+  height: auto;
   cursor: pointer;
   border: 4px solid transparent;
   border-radius: 12px;
   transition: all 0.2s;
-  background: rgba(255, 255, 255, 0.5); /* 画像の背景を少し白くして視認性アップ */
+  background: rgba(255, 255, 255, 0.5);
+  padding: 5px;
 }
 
 .puyo-choice-item img {
   width: 100%;
-  height: 100%;
+  height: auto;
   border-radius: 8px;
-}
-
-.puyo-choice-item .selection-arrow {
-  display: none;
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 30px;
-  color: #ff0000;
-  text-shadow: 0 0 5px white;
 }
 
 .puyo-choice-item.selected {
@@ -88,21 +134,19 @@ body {
   box-shadow: 0 0 20px red;
 }
 
-.puyo-choice-item.selected .selection-arrow {
-  display: block;
+.puyo-name {
+    margin: 5px 0 0 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+    text-shadow:1px 1px 1px rgb(250, 214, 184);
 }
 
 #reset-selection-btn {
   position: absolute;
-  bottom: 30px;
-  left: 30px;
-  font-size: 20px;
-  padding: 10px 20px;
-  background-color: #555;
-  color: white;
-  border: 1px solid white;
-  border-radius: 8px;
-  cursor: pointer;
+  bottom: 10%;
+  left: calc(50% - 240px);
 }
 
 .popup-content {
@@ -112,36 +156,46 @@ body {
   border: 2px solid #ccc;
   text-align: center;
 }
-
 .popup-content p {
   font-size: 1.8em;
   margin-bottom: 30px;
   color: #333;
+  line-height: 1.5;
 }
-.popup-content button {
-  font-size: 1.5em;
-  padding: 10px 40px;
-  margin: 0 15px;
-  cursor: pointer;
+
+/* --- ▼ ここから追加 ▼ --- */
+#credits {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    font-size: 14px;
+    color: white;
+    text-shadow: 1px 1px 2px black;
 }
+/* --- ▲ ここまで追加 ▲ --- */
+
 
 /* --- ゲーム中の画面 --- */
 #game-container {
-  display: none; /* 初期状態は非表示 */
+  display: none;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 20px;
+  padding-top: 80px;
   gap: 20px;
-  color: white; /* ゲーム中のテキストは白に戻す */
+  color: white;
 }
-
 #game-screen p {
-    color: white; /* ゲーム画面内の説明テキストの色 */
+    font-size: 1em;
 }
 
 #image-display-area, #side-panel {
   width: 120px;
   padding-top: 50px;
+}
+
+#side-panel {
+    width: 160px;
+    text-align: center;
 }
 
 #image-display-area img {
@@ -151,48 +205,109 @@ body {
   margin: 10px auto;
   border: 1px solid white;
 }
-
 #side-panel h3 {
-  margin: 0;
+  margin: 0 0 10px 0;
+  display: inline-block;
 }
-
 #score-display {
   font-size: 2em;
   font-weight: bold;
   background-color: #333;
+  border: 1px solid white;
   padding: 10px;
   border-radius: 8px;
   min-height: 1.5em;
+  margin-top: 20px;
+  text-shadow: 2px 2px 4px #000;
 }
 
+#gameCanvas {
+  width: 240px;
+  height: 480px;
+  background: #000;
+  border: 2px solid #fff;
+}
 canvas {
-  background: #000; /* キャンバスの背景を黒に戻す */
   display: block;
   margin: 0 auto;
-  border: 2px solid #fff; /* ボーダーを白に戻す */
 }
 
+.canvas-bg {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 5px;
+  border-radius: 8px;
+  display: inline-block;
+}
+#nextCanvas {
+    border-radius: 4px;
+}
+
+
+/* --- ゲーム中操作ボタンのスタイル --- */
 #controls {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.main-controls {
+  display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-  flex-wrap: wrap;
+  gap: 15px;
+  width: 100%;
 }
 
 #controls button {
-  font-size: 24px;
-  padding: 10px 20px;
-  background: #444;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px #000;
+  text-decoration: none;
+  background: #668ad8;
+  color: #FFF;
+  border-bottom: solid 6px #627295;
+  border-radius: 3px;
   cursor: pointer;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  position: relative;
+  transition: all 0.1s;
+}
+#controls button:hover {
+  background: #7a9ce2;
+}
+#controls button:active {
+  transform: translateY(6px);
+  border-bottom: none;
 }
 
-#controls button:active {
-  background: #666;
+.main-controls button {
+  width: 70px;
+  height: 70px;
+  padding: 0;
+}
+
+#controls button span {
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#controls button#reset {
+  margin-top: 30px;
+  padding: 8px 32px;
+  width: auto;
+}
+
+#controls button#reset span {
+  font-size: 20px;
+  white-space: nowrap;
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
 }
 
 /* --- スコア加算ポップアップ --- */
@@ -200,7 +315,6 @@ canvas {
   position: relative;
   height: 50px;
 }
-
 .score-popup {
   position: absolute;
   left: 50%;
@@ -212,7 +326,6 @@ canvas {
   animation: fade-out-up 1.5s ease-out forwards;
   pointer-events: none;
 }
-
 @keyframes fade-out-up {
   from {
     opacity: 1;
