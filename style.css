@@ -1,5 +1,6 @@
 body, html {
   height: 100%;
+  overflow: hidden; /* ページ全体のスクロールを禁止 */
 }
 
 body {
@@ -56,15 +57,21 @@ body {
 #difficulty-selection-screen .button-group button,
 #puyo-selection-screen #reset-selection-btn,
 .popup-content button {
-  padding: 12px 28px;
+  padding: 12px 20px;
   text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
-  font-size: 18px;
+  font-size: 20px;
+  min-width: 180px;
 }
 
-/* モード選択と難易度選択ボタンの文字を少し大きくする */
 #title-screen .button-group button,
 #difficulty-selection-screen .button-group button {
     font-size: 22px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
 }
 
 /* --- 画面全体に適用されるオーバーレイの基本スタイル --- */
@@ -79,6 +86,8 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 100;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 /* --- タイトル画面 & 難易度選択画面 --- */
@@ -163,7 +172,6 @@ body {
   line-height: 1.5;
 }
 
-/* --- ▼ ここから追加 ▼ --- */
 #credits {
     position: absolute;
     bottom: 20px;
@@ -172,8 +180,6 @@ body {
     color: white;
     text-shadow: 1px 1px 2px black;
 }
-/* --- ▲ ここまで追加 ▲ --- */
-
 
 /* --- ゲーム中の画面 --- */
 #game-container {
@@ -183,6 +189,8 @@ body {
   padding-top: 80px;
   gap: 20px;
   color: white;
+  width: 100%;
+  box-sizing: border-box;
 }
 #game-screen p {
     font-size: 1em;
@@ -205,9 +213,9 @@ body {
   margin: 10px auto;
   border: 1px solid white;
 }
-#side-panel h3 {
-  margin: 0 0 10px 0;
-  display: inline-block;
+
+#side-panel h3:nth-of-type(2) {
+  margin-top: 30px;
 }
 #score-display {
   font-size: 2em;
@@ -241,7 +249,6 @@ canvas {
 #nextCanvas {
     border-radius: 4px;
 }
-
 
 /* --- ゲーム中操作ボタンのスタイル --- */
 #controls {
@@ -335,4 +342,123 @@ canvas {
     opacity: 0;
     top: -30px;
   }
+}
+
+/* --- ▼▼▼ スマートフォン向けスタイル ▼▼▼ --- */
+@media screen and (max-width: 768px) {
+    
+    #back-to-title-btn {
+        left: 15px;
+        top: 15px;
+    }
+
+    #title-screen .button-group,
+    #difficulty-selection-screen .button-group {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    #puyo-selection-screen h2 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+    #puyo-choices-container {
+        gap: 10px;
+        max-width: 100%;
+    }
+    .puyo-choice-item {
+        width: 60px; /* ぷよ画像を縮小 */
+    }
+    .puyo-name {
+        font-size: 10px;
+    }
+
+    #reset-selection-btn {
+        left: 15px;
+        bottom: 15px;
+        font-size: 16px;
+        padding: 8px 12px;
+    }
+
+    .popup-content p {
+        font-size: 1.2em;
+        white-space: nowrap; /* テキストを改行させない */
+    }
+    .popup-content .button-group {
+        flex-direction: row; /* ボタンを横並びに */
+    }
+    .popup-content button {
+        min-width: 100px;
+        font-size: 1em;
+        padding: 10px;
+    }
+
+    /* --- ゲーム画面のレイアウトを縦並びに変更 --- */
+    #game-container {
+        flex-direction: column;
+        align-items: center;
+        padding-top: 15px;
+        gap: 10px;
+        height: 100vh;
+        justify-content: flex-start;
+    }
+
+    /* 上部情報パネル */
+    .top-info-panel {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        order: 1; /* 表示順を1番目に */
+    }
+
+    #image-display-area, #side-panel {
+        width: auto;
+        padding-top: 0;
+    }
+    #image-display-area {
+        display: flex;
+        gap: 5px;
+    }
+    #image-display-area img {
+        width: 30px;
+        height: 30px;
+        margin: 0;
+    }
+
+    #side-panel {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    #side-panel h3 {
+        margin: 0;
+        font-size: 0.9em;
+    }
+    #nextCanvas {
+        width: 80px;  /* NEXT表示を縮小 */
+        height: 80px;
+    }
+    #score-display {
+        font-size: 1.2em;
+        padding: 5px;
+        margin-top: 0;
+    }
+
+    /* ゲームスクリーン */
+    #game-screen {
+        order: 2; /* 表示順を2番目に */
+    }
+
+    /* 操作ボタン */
+    #controls {
+        order: 3; /* 表示順を3番目に */
+    }
+    .main-controls button {
+        width: 60px;
+        height: 60px;
+    }
+    #controls button#reset {
+        margin-top: 10px;
+    }
 }
