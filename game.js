@@ -13,7 +13,8 @@ const puyoSelectionScreen = document.getElementById('puyo-selection-screen');
 const backToTitleBtn = document.getElementById('back-to-title-btn');
 const gameOverPopup = document.getElementById('game-over-popup');
 const gameOverText = document.getElementById('game-over-text');
-const closeGameOverBtn = document.getElementById('close-game-over-btn');
+const gameOverRetryBtn = document.getElementById('game-over-retry-btn');
+const gameOverTitleBtn = document.getElementById('game-over-title-btn');
 
 // --- サウンド定義 ---
 const SOUNDS = {
@@ -120,11 +121,11 @@ function stopAllBGM() {
 function showGameOverPopup() {
     stopAllBGM();
     playSound(SOUNDS.gameOver);
-    const message = `ゲームオーバー！<br>
-                   感想はこちらのコメント欄へ↓<br>
-                   <a href="https://www.youtube.com/@rentoasobou" target="_blank">
-                   <h4>クリックでyoutubeの動画に移ります</h4>
-                   </a>`;
+    const message = `<p style="margin-bottom:60px">ごちそうさま！</p>
+                   <h4 style="margin-bottom:40px">感想はこちらのコメント欄へ↓<br>
+                   <a href="" target="_blank">
+                   クリックでyoutubeの動画に移ります
+                   </a></h4>`;
     gameOverText.innerHTML = message;
     gameOverPopup.style.display = 'flex';
 }
@@ -584,7 +585,23 @@ document.getElementById('confirm-no-btn').addEventListener('click', () => {
 });
 
 backToTitleBtn.addEventListener('click', goBackToTitle);
-closeGameOverBtn.addEventListener('click', goBackToTitle);
+gameOverTitleBtn.addEventListener('click', goBackToTitle); // タイトルへ戻るボタン
+gameOverRetryBtn.addEventListener('click', () => { // おかわりボタン
+    gameOverPopup.style.display = 'none';
+    
+    // 現在のモードのBGMを再生し直す
+    stopAllBGM();
+    if (selectedMode === 'ren') {
+        playSound(SOUNDS.renModeBGM);
+    } else if (selectedMode === 'friends') {
+        playSound(SOUNDS.friendsModeBGM);
+    }
+
+    restartGame();
+});
+
+// 全てのボタンにクリック音を設定
+// ...
 
 document.querySelectorAll('.btn-effect').forEach(button => {
     button.addEventListener('click', () => {
