@@ -67,7 +67,7 @@ const FRIENDS_MODE_CHOICES = [
     { id: 'puyo_b_07', src: 'puyo_friends_harumi.png', name:'はるみさん'},
     { id: 'puyo_b_08', src: 'puyo_friends_mother.png', name:'母ちゃん'}, 
     { id: 'puyo_b_09', src: 'puyo_friends_niityan.png', name:'兄ちゃん'},
-    { id: 'puyo_b_10', src: 'puyo_friends_Ssensei.png', name:'S先生'},
+    { id: 'puyo_b_10', src: 'puyo_friends_Ssensei.png', name:'S先生　'},
 ];
 const REN_MODE_BACKGROUND_SRC = 'images/background/game_background_ren.png';
 const FRIENDS_MODE_BACKGROUND_SRC = 'images/background/game_background_friends.png';
