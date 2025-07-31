@@ -51,9 +51,11 @@ const GAME_SPEEDS = { easy: 600, normal: 400, hard: 250 };
 const REN_MODE_IMG_PATH = 'images/puyo_ren/';
 const FRIENDS_MODE_IMG_PATH = 'images/puyo_friends/';
 const REN_MODE_IMAGES = [
-    { id: 'puyo_a_1', src: 'puyo_ren1.png' }, { id: 'puyo_a_2', src: 'puyo_ren2.png' },
-    { id: 'puyo_a_3', src: 'puyo_ren3.png' }, { id: 'puyo_a_4', src: 'puyo_ren4.png' },
-    { id: 'puyo_a_5', src: 'puyo_ren5.png' },
+    { id: 'puyo_a_1', src: 'puyo_ren1.png', name: 'レンちゃん１' },
+    { id: 'puyo_a_2', src: 'puyo_ren2.png', name: 'レンちゃん２' },
+    { id: 'puyo_a_3', src: 'puyo_ren3.png', name: 'レンちゃん３' },
+    { id: 'puyo_a_4', src: 'puyo_ren4.png', name: 'レンちゃん４' },
+    { id: 'puyo_a_5', src: 'puyo_ren5.png', name: 'レンちゃん５' },
 ];
 const FRIENDS_MODE_CHOICES = [
     { id: 'puyo_b_01', src: 'puyo_friends_an.png' , name:'アンちゃん'}, 
@@ -465,11 +467,33 @@ function drawBlock(targetCtx, x, y, puyoType) {
 function displayImages() {
     const area = document.getElementById("image-display-area");
     area.innerHTML = '';
-    for (const puyoType in IMAGES) {
-        area.appendChild(IMAGES[puyoType].cloneNode());
-    }
-}
 
+    // レンモードと友達モードのぷよ定義を一時的に結合して名前を検索しやすくする
+    const allPuyoData = [...REN_MODE_IMAGES, ...FRIENDS_MODE_CHOICES];
+
+    // 現在ゲームで使われているぷよの種類（PUYO_TYPES）を元にリストを生成
+    PUYO_TYPES.forEach(puyoId => {
+        // IDを元に、名前を含むぷよの全データを検索
+        const puyoData = allPuyoData.find(p => p.id === puyoId);
+        if (!puyoData || !IMAGES[puyoId]) return;
+
+        // 画像と名前を囲むコンテナを作成
+        const itemContainer = document.createElement('div');
+        itemContainer.className = 'image-list-item';
+
+        // 画像を作成
+        const img = IMAGES[puyoId].cloneNode();
+
+        // 名前を表示するspanを作成
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'image-list-name';
+        nameSpan.textContent = puyoData.name;
+
+        itemContainer.appendChild(img);
+        itemContainer.appendChild(nameSpan);
+        area.appendChild(itemContainer);
+    });
+}
 // スコア表示を更新する
 function updateScoreDisplay() {
     document.getElementById("score-display").textContent = score + "g";
