@@ -150,7 +150,7 @@ body {
     font-size: 16px;
     font-weight: bold;
     color: black;
-    text-shadow:1px 1px 1px rgb(250, 214, 184);
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; 
 }
 
 #reset-selection-btn {
@@ -216,7 +216,7 @@ body {
 }
 
 #side-panel h3:nth-of-type(2) {
-  margin-top: 30px;
+  margin-top: 80px;
 }
 #score-display {
   font-size: 2em;
@@ -483,4 +483,40 @@ canvas {
     #controls button#reset span {
         font-size: 14px;
     }
+}
+
+/* --- ゲーム中の画像リストのスタイル --- */
+.image-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 画像と名前の間隔 */
+  margin-bottom: 5px;
+}
+
+.image-list-item img {
+  width: 40px;
+  height: 40px;
+}
+
+/* デフォルト（スマホ表示）では名前を非表示にする */
+.image-list-name {
+  display: none;
+  color: black; /* 背景が白になるため文字色を黒に */
+ 
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; 
+  background: rgba(255, 255, 255, 0.7); /* 半透明の白い背景を追加 */
+  padding: 3px 8px; /* 背景に余白を追加 */
+  border-radius: 5px; /* 背景の角を丸くする */
+  white-space: nowrap; /* 文字列が改行されないようにする */
+   border: 1px solid white;
+}
+
+/* --- PC向けスタイル (769px以上) --- */
+@media screen and (min-width: 769px) {
+  /* PC表示の時だけ名前を表示する */
+  .image-list-name {
+    display: inline;
+  }
 }
