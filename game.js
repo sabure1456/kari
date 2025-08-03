@@ -81,7 +81,7 @@ let selectedPuyos = [];
 let field = [];
 let currentPiece = null;
 let nextPiece = null;
-let score = 0;
+let score = 10000;
 let gameOver = false;
 let isProcessing = false;
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -123,13 +123,14 @@ function stopAllBGM() {
 function showGameOverPopup() {
     stopAllBGM();
     playSound(SOUNDS.gameOver);
-    const message = `<p style="margin-bottom:60px">ごちそうさま！</p>
-                   <h4 style="margin-bottom:40px">感想はこちらのコメント欄へ↓<br>
-                   <a href="" target="_blank">
-                   クリックでyoutubeの動画に移ります
-                   </a></h4>`;
-    gameOverText.innerHTML = message;
+
+    // ▼▼▼ この部分を変更 ▼▼▼
+    // 新しいテキスト要素にスコアを含んだ文章を設定
+    document.getElementById('final-score-text').innerHTML = `食べた量は<span class="score-highlight">${score}g</span>でした！`;
+    // ▲▲▲ この部分を変更 ▲▲▲
+
     gameOverPopup.style.display = 'flex';
+    resizeGameOverPopup();
 }
 
 // タイトル画面に戻る
@@ -211,6 +212,7 @@ function startFriendsModeGame() {
     puyoSelectionScreen.style.display = 'none';
     document.getElementById('confirmation-popup').style.display = 'none';
     gameContainer.style.display = 'flex';
+    backToTitleBtn.style.display = 'none';
     loadImages(() => {
         displayImages();
         restartGame();
@@ -229,6 +231,7 @@ function startRenModeGame() {
     }, {});
     titleScreen.style.display = "none";
     gameContainer.style.display = 'flex';
+    backToTitleBtn.style.display = 'none';
     loadImages(() => {
         displayImages();
         restartGame();
@@ -251,10 +254,11 @@ function loadImages(callback) {
 
 // ゲームの状態を初期化し、新しいゲームを開始する
 function restartGame() {
+    resizeGameLayout()
     if (gameLoopTimeoutId) {
         clearTimeout(gameLoopTimeoutId);
     }
-    score = 0;
+    score = 9999990;
     updateScoreDisplay();
     initField();
     nextPiece = newPiece();
@@ -434,13 +438,25 @@ function drawNextPiece() {
 
     const { pivot, mobile } = nextPiece;
     
-    const pivotX = (nextCanvas.width - (Math.abs(mobile.dx) + 1) * BLOCK_SIZE) / 2;
-    const pivotY = (nextCanvas.height - (Math.abs(mobile.dy) + 1) * BLOCK_SIZE) / 2;
-    const mobileX = pivotX + mobile.dx * BLOCK_SIZE;
-    const mobileY = pivotY + mobile.dy * BLOCK_SIZE;
+    // nextCanvas専用のブロックサイズを、現在のキャンバス幅を元に動的に計算
+    const nextBlockSize = nextCanvas.width / 2; // 140px / 2 = 70px
 
-    drawBlock(nextCtx, pivotX / BLOCK_SIZE, pivotY / BLOCK_SIZE, pivot.puyoType);
-    drawBlock(nextCtx, mobileX / BLOCK_SIZE, mobileY / BLOCK_SIZE, mobile.puyoType);
+    // 新しいブロックサイズを基準にぷよの描画位置を計算
+    const pivotX = (nextCanvas.width - (Math.abs(mobile.dx) + 1) * nextBlockSize) / 2;
+    const pivotY = (nextCanvas.height - (Math.abs(mobile.dy) + 1) * nextBlockSize) / 2;
+    const mobileX = pivotX + mobile.dx * nextBlockSize;
+    const mobileY = pivotY + mobile.dy * nextBlockSize;
+
+    // ぷよを新しいサイズで描画
+    const pivotImg = IMAGES[pivot.puyoType];
+    if (pivotImg) {
+        nextCtx.drawImage(pivotImg, pivotX, pivotY, nextBlockSize, nextBlockSize);
+    }
+    
+    const mobileImg = IMAGES[mobile.puyoType];
+    if (mobileImg) {
+        nextCtx.drawImage(mobileImg, mobileX, mobileY, nextBlockSize, nextBlockSize);
+    }
 }
 
 // 操作中のぷよ（2個1組）を描画する
@@ -610,6 +626,7 @@ document.getElementById('confirm-no-btn').addEventListener('click', () => {
 
 backToTitleBtn.addEventListener('click', goBackToTitle);
 gameOverTitleBtn.addEventListener('click', goBackToTitle); // タイトルへ戻るボタン
+document.getElementById('ingame-back-to-title-btn').addEventListener('click', goBackToTitle);
 gameOverRetryBtn.addEventListener('click', () => { // おかわりボタン
     gameOverPopup.style.display = 'none';
     
@@ -638,3 +655,73 @@ setupControls();
 // 最初の操作で音声を有効化するリスナーを追加
 document.addEventListener('click', unlockAudio);
 document.addEventListener('keydown', unlockAudio);
+
+/* game.js の resizeGameLayout 関数を以下のように書き換える */
+
+function resizeGameLayout() {
+  const gameContainer = document.getElementById('game-container');
+
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+
+  const baseWidth = 700; 
+  const baseHeight = 800; 
+
+  // ▼▼▼ ここの計算から余白(- 40)を削除 ▼▼▼
+  const availableWidth = windowWidth;
+  const availableHeight = windowHeight;
+
+  const scaleBasedOnHeight = availableHeight / baseHeight;
+  const scaleBasedOnWidth = availableWidth / baseWidth;
+
+  const scale = Math.min(scaleBasedOnHeight, scaleBasedOnWidth);
+
+  gameContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+
+function resizeGameOverPopup() {
+    const popupContent = document.querySelector('#game-over-popup .popup-content');
+    if (!popupContent) return;
+
+    // --- 1. ポップアップの基本設定 ---
+    // ポップアップの基本となる形（アスペクト比）と文字サイズを定義します。
+    const BASE_WIDTH = 520;      // 基本の横幅 (px)
+    const BASE_HEIGHT = 480;     // 基本の縦幅 (px)
+    const BASE_FONT_SIZE = 6;   // 拡縮率100%の時の基本フォントサイズ (px)
+
+    // --- 2. 現在の画面サイズを取得 ---
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // --- 3. 最適な縮尺（スケール）を計算 ---
+    // 横幅と縦幅、それぞれが画面に収まるための縮尺を計算
+    const scaleX = (viewportWidth - 40) / BASE_WIDTH;   // 左右に20pxずつの余白を考慮
+    const scaleY = (viewportHeight - 40) / BASE_HEIGHT; // 上下に20pxずつの余白を考慮
+
+    // 横幅と縦幅の両方が画面に収まる、より小さい方の縮尺を採用
+    const uniformScale = Math.min(scaleX, scaleY);
+
+    // --- 4. 計算したスタイルを適用 ---
+    // ポップアップ全体を「均等に」拡縮します（これにより歪みません）
+    popupContent.style.transform = `translate(-50%, -50%) scale(${uniformScale})`;
+
+    // ポップアップの拡縮に合わせて、中の文字の基本サイズも調整します
+    // これにより、テキストだけが大きすぎたり小さすぎたりするのを防ぎます
+    popupContent.style.fontSize = `${BASE_FONT_SIZE * uniformScale}px`;
+}
+// ページ読み込み時とウィンドウリサイズ時にレイアウト調整関数を実行
+// 画面リサイズ時に適切な関数を呼び出す処理
+function handleResize() {
+    if (gameContainer.style.display === 'flex') {
+        resizeGameLayout();
+    }
+    if (gameOverPopup.style.display === 'flex') {
+        resizeGameOverPopup();
+    }
+}
+
+// ページ読み込み時とウィンドウリサイズ時に上記の処理を実行
+window.addEventListener('load', handleResize);
+window.addEventListener('resize', handleResize);
+// ▲▲▲ ここまで追加 ▲▲▲
