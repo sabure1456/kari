@@ -16,7 +16,13 @@
       <button id="mode-ren" class="btn-effect"><span>レンモード</span></button>
       <button id="mode-friends" class="btn-effect"><span>友達モード</span></button>
     </div>
-    <p id="credits">レンと遊ぼう @rentoasobou</p>
+    <p id="credits">
+      レンと遊ぼう @rentoasobou<br>
+      <a href="https://www.youtube.com/@rentoasobou" target="_blank">
+        https://www.youtube.com/@rentoasobou
+      </a>
+    </p>
+    
     </div>
 
   <div id="difficulty-selection-screen" class="fullscreen-overlay" style="display: none;">
@@ -43,17 +49,24 @@
     </div>
   </div>
 
-    <div id="game-over-popup" class="fullscreen-overlay" style="display: none;">
+<div id="game-over-popup" class="fullscreen-overlay" style="display: none;">
     <div class="popup-content">
-      <p id="game-over-text"></p>
+      <h2 class="game-over-title">ごちそうさま！</h2>
+      
+      <p id="final-score-text"></p>
+      <div class="popup-link-area">
+        <p>感想はこちらのコメント欄へ↓</p>
+        <a href="YOUR_LINK_HERE" target="_blank" class="youtube-link">
+            <span>クリックでyoutubeの動画に移ります</span>
+        </a>
+      </div>
       <div class="button-group">
         <button id="game-over-retry-btn" class="btn-effect"><span>おかわり（最初から）</span></button>
         <button id="game-over-title-btn" class="btn-effect"><span>タイトルに戻る</span></button>
       </div>
     </div>
   </div>
-
-  <div id="game-container" style="display: none;">
+<div id="game-container" style="display: none;">
     <div id="image-display-area"></div>
     <div id="game-screen">
       <p class="text-bg">← →：移動　↓：落下　↺：回転</p>
@@ -65,18 +78,22 @@
           <button id="right" class="btn-effect"><span>→</span></button>
           <button id="rotate" class="btn-effect"><span>↺</span></button>
         </div>
-        <button id="reset" class="btn-effect"><span>おかわり（最初から）</span></button>
         </div>
     </div>
     <div id="side-panel">
       <h3 class="text-bg">NEXT</h3>
       <div class="canvas-bg">
-        <canvas id="nextCanvas" width="160" height="160"></canvas>
+        <canvas id="nextCanvas" width="140" height="140"></canvas>
       </div>
       <h3 class="text-bg">食べた量</h3>
       <p id="score-display">0g</p>
       <div id="score-popup-container"></div>
+      
+      <button id="ingame-back-to-title-btn" class="btn-effect"><span>タイトルに戻る</span></button>
+      <button id="reset" class="btn-effect"><span>おかわり(最初から)</span></button>
+
     </div>
+ 
   </div>
 
   <script src="game.js"></script>
