@@ -19,7 +19,7 @@ body {
 #back-to-title-btn {
   position: fixed;
   top: 40px;
-  left: calc(50% - 180px);
+  left: calc(50% - 150px);
   z-index: 200;
   padding: 8px 16px;
   font-size: 14px;
@@ -122,7 +122,7 @@ body {
   display: grid; /* flexからgridに変更 */
   
   /* 画面幅に合わせて列数を自動調整し、各要素の最小幅を70pxに設定 */
-  grid-template-columns: repeat(5, minmax(60px, 1fr));
+  grid-template-columns: repeat(5, minmax(55px, 1fr));
   
   gap: 20px;
   max-width: 600px;
@@ -154,7 +154,7 @@ body {
 .puyo-name {
     margin: 5px 0 0 0;
     padding: 0;
-    font-size: clamp(12px, 2vw, 14px);
+    font-size: clamp(8px, 2vw, 14px);
     font-weight: bold;
     white-space: nowrap;
     color: black;
@@ -474,4 +474,3 @@ canvas {
     display: inline;
   }
 }
-
