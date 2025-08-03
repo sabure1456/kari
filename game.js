@@ -1,22 +1,50 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const nextCanvas = document.getElementById("nextCanvas");
-const nextCtx = nextCanvas.getContext("2d");
+/**
+ * =================================================================
+ * DOM要素の取得
+ * =================================================================
+ */
+const DOM = {
+    canvas: document.getElementById("gameCanvas"),
+    nextCanvas: document.getElementById("nextCanvas"),
+    titleScreen: document.getElementById("title-screen"),
+    gameContainer: document.getElementById("game-container"),
+    difficultySelectionScreen: document.getElementById('difficulty-selection-screen'),
+    puyoSelectionScreen: document.getElementById('puyo-selection-screen'),
+    puyoChoicesContainer: document.getElementById('puyo-choices-container'),
+    confirmationPopup: document.getElementById('confirmation-popup'),
+    gameOverPopup: document.getElementById('game-over-popup'),
+    finalScoreText: document.getElementById('final-score-text'),
+    scoreDisplay: document.getElementById("score-display"),
+    scorePopupContainer: document.getElementById("score-popup-container"),
+    imageDisplayArea: document.getElementById("image-display-area"),
+    backToTitleBtn: document.getElementById('back-to-title-btn'),
+    ingameBackToTitleBtn: document.getElementById('ingame-back-to-title-btn'),
+    buttons: {
+        modeRen: document.getElementById("mode-ren"),
+        modeFriends: document.getElementById("mode-friends"),
+        easy: document.getElementById('easy-btn'),
+        normal: document.getElementById('normal-btn'),
+        hard: document.getElementById('hard-btn'),
+        resetSelection: document.getElementById('reset-selection-btn'),
+        confirmYes: document.getElementById('confirm-yes-btn'),
+        confirmNo: document.getElementById('confirm-no-btn'),
+        gameOverRetry: document.getElementById('game-over-retry-btn'),
+        gameOverTitle: document.getElementById('game-over-title-btn'),
+        ingameReset: document.getElementById("reset"),
+        left: document.getElementById("left"),
+        right: document.getElementById("right"),
+        down: document.getElementById("down"),
+        rotate: document.getElementById("rotate"),
+    }
+};
+const CTX = DOM.canvas.getContext("2d");
+const NEXT_CTX = DOM.nextCanvas.getContext("2d");
 
-// --- DOM要素 ---
-const titleScreen = document.getElementById("title-screen");
-const gameContainer = document.getElementById("game-container");
-const modeRenButton = document.getElementById("mode-ren");
-const modeFriendsButton = document.getElementById("mode-friends");
-const difficultySelectionScreen = document.getElementById('difficulty-selection-screen');
-const puyoSelectionScreen = document.getElementById('puyo-selection-screen');
-const backToTitleBtn = document.getElementById('back-to-title-btn');
-const gameOverPopup = document.getElementById('game-over-popup');
-const gameOverText = document.getElementById('game-over-text');
-const gameOverRetryBtn = document.getElementById('game-over-retry-btn');
-const gameOverTitleBtn = document.getElementById('game-over-title-btn');
-
-// --- サウンド定義 ---
+/**
+ * =================================================================
+ * サウンド関連
+ * =================================================================
+ */
 const SOUNDS = {
     titleBGM: new Audio('audio/title_bgm.mp3'),
     renModeBGM: new Audio('audio/mode_ren_bgm.mp3'),
@@ -26,90 +54,119 @@ const SOUNDS = {
     click: new Audio('audio/click.mp3'),
     land: new Audio('audio/puyo_falled.mp3')
 };
-SOUNDS.titleBGM.loop = true;
-SOUNDS.renModeBGM.loop = true;
-SOUNDS.friendsModeBGM.loop = true;
 
-// --- ▼ ここからボリューム設定▼ ---
-// BGMの音量を設定
+// 各サウンドの音量設定
 SOUNDS.titleBGM.volume = 0.1;
 SOUNDS.renModeBGM.volume = 0.03;
 SOUNDS.friendsModeBGM.volume = 0.03;
-
-// 効果音の音量を設定
 SOUNDS.clear.volume = 0.2;
 SOUNDS.gameOver.volume = 0.2;
 SOUNDS.click.volume = 0.05;
 SOUNDS.land.volume = 0.2;
-// --- ▲ ここまでボリューム設定▲ ---
 
-// --- 定数 ---
-const COLS = 6;
-const ROWS = 12;
-const BLOCK_SIZE = 80;
-const GAME_SPEEDS = { easy: 600, normal: 400, hard: 250 };
-const REN_MODE_IMG_PATH = 'images/puyo_ren/';
-const FRIENDS_MODE_IMG_PATH = 'images/puyo_friends/';
-const REN_MODE_IMAGES = [
-    { id: 'puyo_a_1', src: 'puyo_ren1.png', name: 'レンちゃん１' },
-    { id: 'puyo_a_2', src: 'puyo_ren2.png', name: 'レンちゃん２' },
-    { id: 'puyo_a_3', src: 'puyo_ren3.png', name: 'レンちゃん３' },
-    { id: 'puyo_a_4', src: 'puyo_ren4.png', name: 'レンちゃん４' },
-    { id: 'puyo_a_5', src: 'puyo_ren5.png', name: 'レンちゃん５' },
-];
-const FRIENDS_MODE_CHOICES = [
-    { id: 'puyo_b_01', src: 'puyo_friends_an.png' , name:'アンちゃん'}, 
-    { id: 'puyo_b_02', src: 'puyo_friends_gen.png', name:'ゲンちゃん'},
-    { id: 'puyo_b_03', src: 'puyo_friends_mon.png', name:'もんちゃん'},
-    { id: 'puyo_b_04', src: 'puyo_friends_katura.png', name:'カツラレン'},
-    { id: 'puyo_b_05', src: 'puyo_friends_baby.png', name:'ベビーレン'},
-    { id: 'puyo_b_06', src: 'puyo_friends_shougakusei.png', name:'小学生レン'}, 
-    { id: 'puyo_b_07', src: 'puyo_friends_harumi.png', name:'はるみさん'},
-    { id: 'puyo_b_08', src: 'puyo_friends_mother.png', name:'母ちゃん'}, 
-    { id: 'puyo_b_09', src: 'puyo_friends_niityan.png', name:'兄ちゃん'},
-    { id: 'puyo_b_10', src: 'puyo_friends_Ssensei.png', name:'S先生　'},
-];
-const REN_MODE_BACKGROUND_SRC = 'images/background/game_background_ren.png';
-const FRIENDS_MODE_BACKGROUND_SRC = 'images/background/game_background_friends.png';
+// BGMはループ再生を有効化
+SOUNDS.titleBGM.loop = true;
+SOUNDS.renModeBGM.loop = true;
+SOUNDS.friendsModeBGM.loop = true;
 
-// --- グローバル変数 ---
+
+/**
+ * =================================================================
+ * 定数・設定
+ * =================================================================
+ */
+const CONFIG = {
+    COLS: 6,
+    ROWS: 12,
+    BLOCK_SIZE: 80,
+    GAME_SPEEDS: { easy: 600, normal: 400, hard: 250 },
+    REN_MODE: {
+        IMG_PATH: 'images/puyo_ren/',
+        PUYOS: [
+            { id: 'puyo_a_1', src: 'puyo_ren1.png', name: 'レンちゃん１' },
+            { id: 'puyo_a_2', src: 'puyo_ren2.png', name: 'レンちゃん２' },
+            { id: 'puyo_a_3', src: 'puyo_ren3.png', name: 'レンちゃん３' },
+            { id: 'puyo_a_4', src: 'puyo_ren4.png', name: 'レンちゃん４' },
+            { id: 'puyo_a_5', src: 'puyo_ren5.png', name: 'レンちゃん５' },
+        ],
+        BACKGROUND_SRC: 'images/background/game_background_ren.png'
+    },
+    FRIENDS_MODE: {
+        IMG_PATH: 'images/puyo_friends/',
+        PUYOS: [
+            { id: 'puyo_b_01', src: 'puyo_friends_an.png' , name:'アンちゃん'},
+            { id: 'puyo_b_02', src: 'puyo_friends_gen.png', name:'ゲンちゃん'},
+            { id: 'puyo_b_03', src: 'puyo_friends_mon.png', name:'もんちゃん'},
+            { id: 'puyo_b_04', src: 'puyo_friends_katura.png', name:'カツラレン'},
+            { id: 'puyo_b_05', src: 'puyo_friends_baby.png', name:'ベビーレン'},
+            { id: 'puyo_b_06', src: 'puyo_friends_shougakusei.png', name:'小学生レン'},
+            { id: 'puyo_b_07', src: 'puyo_friends_harumi.png', name:'はるみさん'},
+            { id: 'puyo_b_08', src: 'puyo_friends_mother.png', name:'母ちゃん'},
+            { id: 'puyo_b_09', src: 'puyo_friends_niityan.png', name:'兄ちゃん'},
+            { id: 'puyo_b_10', src: 'puyo_friends_Ssensei.png', name:'S先生　'},
+        ],
+        BACKGROUND_SRC: 'images/background/game_background_friends.png'
+    }
+};
+
+/**
+ * =================================================================
+ * グローバル状態変数
+ * =================================================================
+ */
+let gameState = {
+    currentPuyoPair: null,
+    nextPuyoPair: null,
+    gameGrid: [],
+    score: 0,
+    isGameOver: false,
+    isProcessing: false, // 連鎖処理中など、プレイヤーの操作を一時的に無効化するためのフラグ
+    selectedMode: '', // 'ren' or 'friends'
+    gameSpeed: CONFIG.GAME_SPEEDS.normal,
+    puyoTypesInUse: [], // 現在のゲームで使われるぷよのIDリスト
+    puyoImageMap: {}, // IDと画像パスのマッピング
+    loadedImages: {}, // 読み込み済みの画像オブジェクト
+    selectedPuyosForFriendsMode: [], // 友達モードで選択されたぷよ
+    isAudioUnlocked: false,
+    gameLoopTimeoutId: null,
+};
 let currentGameBackgroundImage = new Image();
-let PUYO_TYPES = [];
-let PUYO_IMAGE_MAP = {};
-const IMAGES = {};
-let selectedPuyos = [];
-let field = [];
-let currentPiece = null;
-let nextPiece = null;
-let score = 10000;
-let gameOver = false;
-let isProcessing = false;
+
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-let gameLoopTimeoutId = null;
-let selectedMode = '';
-let gameSpeed = GAME_SPEEDS.normal;
-let isAudioUnlocked = false;
 
-// --- ▼ ここから変更 ▼ ---
-// --- サウンド制御関数 ---
-// 最初の操作で音声を有効化し、タイトルBGMを再生
-function unlockAudio() {
-    if (isAudioUnlocked) return;
-    isAudioUnlocked = true;
 
-    // タイトルBGMの再生のみ行う（これで音声全体が有効化される）
+/**
+ * =================================================================
+ * サウンド制御
+ * =================================================================
+ */
+
+/**
+ * ユーザーの初回アクション時に音声を有効化し、タイトルBGMを再生する
+ */
+function initializeAudio() {
+    if (gameState.isAudioUnlocked) return;
+    gameState.isAudioUnlocked = true;
     playSound(SOUNDS.titleBGM);
 
-    // このリスナーは一度しか実行されないように解除
-    document.removeEventListener('click', unlockAudio);
-    document.removeEventListener('keydown', unlockAudio);
+    document.removeEventListener('click', initializeAudio);
+    document.removeEventListener('keydown', initializeAudio);
 }
 
+/**
+ * 指定されたサウンドを再生する
+ * @param {HTMLAudioElement} sound - 再生するAudioオブジェクト
+ */
 function playSound(sound) {
-    if (!isAudioUnlocked && sound.loop) return; // BGMは有効化されるまで再生しない
+    // BGM以外は、音声が有効化されるまで再生しない
+    if (!gameState.isAudioUnlocked && sound.loop) return;
     sound.currentTime = 0;
-    sound.play().catch(e => {}); // AbortErrorは無視して良い
+    sound.play().catch(e => {}); // ユーザー操作起因でない再生によるAbortErrorは無視
 }
+
+/**
+ * すべてのBGM（ループする音声）を停止する
+ */
 function stopAllBGM() {
     Object.values(SOUNDS).forEach(sound => {
         if (sound.loop) {
@@ -117,611 +174,816 @@ function stopAllBGM() {
         }
     });
 }
-// --- ▲ ここまで変更 ▲ ---
 
-// ゲームオーバー時のポップアップを表示する
+
+/**
+ * =================================================================
+ * 画面遷移・UI表示
+ * =================================================================
+ */
+
+/**
+ * ゲームオーバーポップアップを表示する
+ */
 function showGameOverPopup() {
     stopAllBGM();
     playSound(SOUNDS.gameOver);
-
-    // ▼▼▼ この部分を変更 ▼▼▼
-    // 新しいテキスト要素にスコアを含んだ文章を設定
-    document.getElementById('final-score-text').innerHTML = `食べた量は<span class="score-highlight">${score}g</span>でした！`;
-    // ▲▲▲ この部分を変更 ▲▲▲
-
-    gameOverPopup.style.display = 'flex';
+    DOM.finalScoreText.innerHTML = `食べた量は<span class="score-highlight">${gameState.score}g</span>でした！`;
+    DOM.gameOverPopup.style.display = 'flex';
     resizeGameOverPopup();
 }
 
-// タイトル画面に戻る
+/**
+ * タイトル画面に戻る
+ */
 function goBackToTitle() {
-    if (gameLoopTimeoutId) {
-        clearTimeout(gameLoopTimeoutId);
+    if (gameState.gameLoopTimeoutId) {
+        clearTimeout(gameState.gameLoopTimeoutId);
     }
-    gameOver = true;
+    gameState.isGameOver = true;
     stopAllBGM();
     playSound(SOUNDS.titleBGM);
-    difficultySelectionScreen.style.display = 'none';
-    puyoSelectionScreen.style.display = 'none';
-    gameContainer.style.display = 'none';
-    gameOverPopup.style.display = 'none';
-    backToTitleBtn.style.display = 'none';
-    titleScreen.style.display = 'flex';
+
+    DOM.difficultySelectionScreen.style.display = 'none';
+    DOM.puyoSelectionScreen.style.display = 'none';
+    DOM.gameContainer.style.display = 'none';
+    DOM.gameOverPopup.style.display = 'none';
+    DOM.backToTitleBtn.style.display = 'none';
+    DOM.titleScreen.style.display = 'flex';
 }
 
-// 友達モード: ぷよ選択画面の選択肢をHTMLに生成する
-function setupPuyoSelection() {
-    const container = document.getElementById('puyo-choices-container');
-    container.innerHTML = '';
-    FRIENDS_MODE_CHOICES.forEach(puyo => {
+/**
+ * 友達モードのぷよ選択肢を画面に生成する
+ */
+function setupPuyoSelectionScreen() {
+    DOM.puyoChoicesContainer.innerHTML = '';
+    CONFIG.FRIENDS_MODE.PUYOS.forEach(puyo => {
         const item = document.createElement('div');
         item.className = 'puyo-choice-item';
         item.dataset.puyoId = puyo.id;
         item.dataset.puyoSrc = puyo.src;
+
         const img = new Image();
-        img.src = FRIENDS_MODE_IMG_PATH + puyo.src;
+        img.src = CONFIG.FRIENDS_MODE.IMG_PATH + puyo.src;
+
         const nameEl = document.createElement('p');
         nameEl.className = 'puyo-name';
         nameEl.textContent = puyo.name;
+
         item.appendChild(img);
         item.appendChild(nameEl);
-        container.appendChild(item);
+        DOM.puyoChoicesContainer.appendChild(item);
     });
 }
 
-// 友達モード: ぷよの選択状態をすべてリセットする
+/**
+ * 友達モードのぷよ選択状態をリセットする
+ */
 function resetPuyoSelection() {
-    selectedPuyos = [];
+    gameState.selectedPuyosForFriendsMode = [];
     document.querySelectorAll('.puyo-choice-item').forEach(item => {
         item.classList.remove('selected');
     });
-    document.getElementById('confirmation-popup').style.display = 'none';
+    DOM.confirmationPopup.style.display = 'none';
 }
 
-// 友達モード: ぷよ選択のクリックイベントを処理する
-function handlePuyoChoiceClick(e) {
-    const targetItem = e.target.closest('.puyo-choice-item');
-    if (!targetItem) return;
-    const puyoId = targetItem.dataset.puyoId;
-    const isSelected = targetItem.classList.contains('selected');
-    if (isSelected) {
-        targetItem.classList.remove('selected');
-        selectedPuyos = selectedPuyos.filter(id => id !== puyoId);
-    } else {
-        if (selectedPuyos.length < 5) {
-            targetItem.classList.add('selected');
-            selectedPuyos.push(puyoId);
+
+/**
+ * =================================================================
+ * ゲームの開始・初期化
+ * =================================================================
+ */
+
+/**
+ * ゲームを開始する
+ */
+function startGame() {
+    stopAllBGM();
+    
+    // モードに応じたBGMと背景、ぷよの種類を設定
+    if (gameState.selectedMode === 'ren') {
+        playSound(SOUNDS.renModeBGM);
+        currentGameBackgroundImage.src = CONFIG.REN_MODE.BACKGROUND_SRC;
+        gameState.puyoTypesInUse = CONFIG.REN_MODE.PUYOS.map(p => p.id);
+        gameState.puyoImageMap = CONFIG.REN_MODE.PUYOS.reduce((map, p) => {
+            map[p.id] = CONFIG.REN_MODE.IMG_PATH + p.src;
+            return map;
+        }, {});
+    } else { // friendsモード
+        playSound(SOUNDS.friendsModeBGM);
+        currentGameBackgroundImage.src = CONFIG.FRIENDS_MODE.BACKGROUND_SRC;
+        gameState.puyoTypesInUse = [...gameState.selectedPuyosForFriendsMode];
+        gameState.puyoImageMap = {};
+        document.querySelectorAll('.puyo-choice-item.selected').forEach(item => {
+            gameState.puyoImageMap[item.dataset.puyoId] = CONFIG.FRIENDS_MODE.IMG_PATH + item.dataset.puyoSrc;
+        });
+    }
+
+    // 画面の表示切り替え
+    DOM.titleScreen.style.display = "none";
+    DOM.difficultySelectionScreen.style.display = 'none';
+    DOM.puyoSelectionScreen.style.display = 'none';
+    DOM.confirmationPopup.style.display = 'none';
+    DOM.gameContainer.style.display = 'flex';
+    DOM.backToTitleBtn.style.display = 'none';
+
+    // 画像読み込み後にゲームをリスタート
+    loadPuyoImages(() => {
+        displayPuyoListInGame();
+        restartGame();
+    });
+}
+
+/**
+ * ゲームで使用するぷよの画像を読み込む
+ * @param {function} callback - 画像読み込み完了後に実行される関数
+ */
+function loadPuyoImages(callback) {
+    let loadedCount = 0;
+    gameState.loadedImages = {};
+    const totalImages = Object.keys(gameState.puyoImageMap).length;
+
+    if (totalImages === 0) {
+        callback();
+        return;
+    }
+
+    for (const puyoType in gameState.puyoImageMap) {
+        const img = new Image();
+        img.src = gameState.puyoImageMap[puyoType];
+        img.onload = () => {
+            gameState.loadedImages[puyoType] = img;
+            loadedCount++;
+            if (loadedCount === totalImages) callback();
+        };
+        img.onerror = () => {
+            console.error(`Image failed to load: ${gameState.puyoImageMap[puyoType]}`);
+            loadedCount++;
+            if (loadedCount === totalImages) callback();
         }
     }
-    if (selectedPuyos.length === 5) {
-        document.getElementById('confirmation-popup').style.display = 'flex';
-    }
 }
 
-// --- ゲーム開始・初期化の関数 ---
-// 友達モード: 選択されたぷよでゲームを開始する
-function startFriendsModeGame() {
-    stopAllBGM();
-    playSound(SOUNDS.friendsModeBGM);
-    currentGameBackgroundImage.src = FRIENDS_MODE_BACKGROUND_SRC;
-    PUYO_TYPES = [...selectedPuyos];
-    PUYO_IMAGE_MAP = {};
-    document.querySelectorAll('.puyo-choice-item.selected').forEach(item => {
-        PUYO_IMAGE_MAP[item.dataset.puyoId] = FRIENDS_MODE_IMG_PATH + item.dataset.puyoSrc;
-    });
-    puyoSelectionScreen.style.display = 'none';
-    document.getElementById('confirmation-popup').style.display = 'none';
-    gameContainer.style.display = 'flex';
-    backToTitleBtn.style.display = 'none';
-    loadImages(() => {
-        displayImages();
-        restartGame();
-    });
-}
-
-// レンモード: 事前定義されたぷよでゲームを開始する
-function startRenModeGame() {
-    stopAllBGM();
-    playSound(SOUNDS.renModeBGM);
-    currentGameBackgroundImage.src = REN_MODE_BACKGROUND_SRC;
-    PUYO_TYPES = REN_MODE_IMAGES.map(puyo => puyo.id);
-    PUYO_IMAGE_MAP = REN_MODE_IMAGES.reduce((map, puyo) => {
-        map[puyo.id] = REN_MODE_IMG_PATH + puyo.src;
-        return map;
-    }, {});
-    titleScreen.style.display = "none";
-    gameContainer.style.display = 'flex';
-    backToTitleBtn.style.display = 'none';
-    loadImages(() => {
-        displayImages();
-        restartGame();
-    });
-}
-
-// ゲームで使用するぷよの画像を読み込む
-function loadImages(callback) {
-  let loaded = 0;
-  Object.keys(IMAGES).forEach(key => delete IMAGES[key]);
-  const total = Object.keys(PUYO_IMAGE_MAP).length;
-  if (total === 0) { callback(); return; }
-  for (const puyoType in PUYO_IMAGE_MAP) {
-    const img = new Image();
-    img.src = PUYO_IMAGE_MAP[puyoType];
-    img.onload = () => { IMAGES[puyoType] = img; loaded++; if (loaded === total) callback(); };
-    img.onerror = () => { console.error(`画像の読み込みに失敗しました: ${PUYO_IMAGE_MAP[puyoType]}`); loaded++; if (loaded === total) callback(); }
-  }
-}
-
-// ゲームの状態を初期化し、新しいゲームを開始する
+/**
+ * ゲームの状態をリセットし、新しいゲームを開始する
+ */
 function restartGame() {
-    resizeGameLayout()
-    if (gameLoopTimeoutId) {
-        clearTimeout(gameLoopTimeoutId);
+    resizeGameLayout();
+    if (gameState.gameLoopTimeoutId) {
+        clearTimeout(gameState.gameLoopTimeoutId);
     }
-    score = 9999990;
+
+    gameState.score = 0;
     updateScoreDisplay();
-    initField();
-    nextPiece = newPiece();
-    draw();
-    drawNextPiece();
-    gameOver = false;
-    isProcessing = false;
+    initializeGrid();
+    gameState.nextPuyoPair = createNewPuyoPair();
+    drawGame();
+    drawNextPuyoPair();
+
+    gameState.isGameOver = false;
+    gameState.isProcessing = false;
+
     gameLoop();
 }
 
-// --- ゲームのコアロジック関数 ---
-// ぷよの消滅、落下、連鎖処理を管理する
-async function handleClearingAndFalling() {
-    isProcessing = true;
+
+/**
+ * =================================================================
+ * ゲームのコアロジック
+ * =================================================================
+ */
+
+/**
+ * ぷよの消去、落下、連鎖反応を処理する
+ */
+async function processChainReaction() {
+    gameState.isProcessing = true;
     let chainCount = 0;
+
     while (true) {
-        dropBlocks();
-        draw();
-        const clearedGroups = clearBlocks();
-        if (clearedGroups.length === 0) { break; }
+        dropFloatingPuyos();
+        drawGame();
+
+        const clearedGroups = findAndClearPuyos();
+        if (clearedGroups.length === 0) {
+            break; // 消せるぷよがなくなったらループを抜ける
+        }
         
         playSound(SOUNDS.clear);
+        chainCount++;
 
+        let scoreForThisChain = 0;
         for (const clearedCount of clearedGroups) {
-            chainCount++;
+            // 4個消しを基本に、5個目からボーナスを加算
             const baseScore = 100 + (Math.max(0, clearedCount - 4)) * 20;
+            // 連鎖ボーナス
             const chainBonus = (chainCount > 1) ? chainCount * 100 : 0;
-            const totalAddedScore = baseScore + chainBonus;
-            score += totalAddedScore;
-            updateScoreDisplay();
-            showScorePopup(totalAddedScore);
+            scoreForThisChain += baseScore + chainBonus;
         }
-        draw();
-        await sleep(300);
+
+        gameState.score += scoreForThisChain;
+        updateScoreDisplay();
+        showScorePopup(scoreForThisChain);
+        
+        drawGame();
+        await sleep(300); // 次の落下処理の前に少し待つ
     }
-    isProcessing = false;
+    gameState.isProcessing = false;
 }
 
-// ゲームのメインループ（ぷよの自然落下などを制御）
+/**
+ * ゲームのメインループ
+ */
 async function gameLoop() {
-  if (gameOver) return;
-  if (isProcessing) {
-      gameLoopTimeoutId = setTimeout(gameLoop, 100);
-      return;
-  }
-  if (!currentPiece) {
-    await handleClearingAndFalling();
-    currentPiece = nextPiece;
-    nextPiece = newPiece();
-    drawNextPiece();
-    if (isGameOver()) {
-        gameOver = true;  
-        draw(); 
-        showGameOverPopup(); 
+    if (gameState.isGameOver) return;
+
+    if (gameState.isProcessing) {
+        gameState.gameLoopTimeoutId = setTimeout(gameLoop, 100);
         return;
     }
-  } else {
-    if (canPieceMove(0, 1)) {
-        currentPiece.pivot.y++;
-    } else {
-        fixPiece();
-        await handleClearingAndFalling();
-    }
-  }
-  draw();
-  if (!gameOver) {
-      gameLoopTimeoutId = setTimeout(gameLoop, gameSpeed);
-  }
-}
 
-// 消せるぷよのグループを探し、消去してその結果を返す
-function clearBlocks() {
-  const groupsToClear = [];
-  const visited = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
-      if (field[y][x] && !visited[y][x]) {
-        const puyoType = field[y][x];
-        const group = floodFill(x, y, puyoType, visited);
-        if (group.length >= 4) {
-          groupsToClear.push(group);
+    if (!gameState.currentPuyoPair) {
+        await processChainReaction(); // 新しいぷよを出す前に連鎖処理を完了させる
+        gameState.currentPuyoPair = gameState.nextPuyoPair;
+        gameState.nextPuyoPair = createNewPuyoPair();
+        drawNextPuyoPair();
+
+        if (checkGameOver()) {
+            gameState.isGameOver = true;
+            drawGame();
+            showGameOverPopup();
+            return;
         }
-      }
+    } else {
+        if (canPuyoPairMove(0, 1)) {
+            gameState.currentPuyoPair.pivot.y++;
+        } else {
+            fixPuyoPairToGrid();
+            await processChainReaction(); // ぷよを設置した後に連鎖処理を開始
+        }
     }
-  }
-  if (groupsToClear.length > 0) {
-    const clearedCounts = [];
-    groupsToClear.forEach(group => {
-        clearedCounts.push(group.length);
-        group.forEach(([gx, gy]) => {
-            field[gy][gx] = null;
-        });
-    });
-    return clearedCounts;
-  }
-  return [];
+
+    drawGame();
+
+    if (!gameState.isGameOver) {
+        gameState.gameLoopTimeoutId = setTimeout(gameLoop, gameState.gameSpeed);
+    }
 }
 
-// 同じ種類の隣接ぷよグループを探索する（連結判定）
-function floodFill(x, y, puyoType, visited) {
+/**
+ * 4つ以上つながったぷよのグループを探して消去する
+ * @returns {number[]} 消去した各グループのぷよ数を格納した配列
+ */
+function findAndClearPuyos() {
+    const groupsToClear = [];
+    const visited = Array.from({ length: CONFIG.ROWS }, () => Array(CONFIG.COLS).fill(false));
+
+    for (let y = 0; y < CONFIG.ROWS; y++) {
+        for (let x = 0; x < CONFIG.COLS; x++) {
+            if (gameState.gameGrid[y][x] && !visited[y][x]) {
+                const puyoType = gameState.gameGrid[y][x];
+                const group = findConnectedPuyos(x, y, puyoType, visited);
+                if (group.length >= 4) {
+                    groupsToClear.push(group);
+                }
+            }
+        }
+    }
+
+    if (groupsToClear.length > 0) {
+        const clearedCounts = [];
+        groupsToClear.forEach(group => {
+            clearedCounts.push(group.length);
+            group.forEach(([gx, gy]) => {
+                gameState.gameGrid[gy][gx] = null;
+            });
+        });
+        return clearedCounts;
+    }
+    return [];
+}
+
+/**
+ * 特定の座標から同じ種類の隣接ぷよグループを探索する (Flood fillアルゴリズム)
+ * @param {number} x - 開始X座標
+ * @param {number} y - 開始Y座標
+ * @param {string} puyoType - 探索するぷよの種類 (ID)
+ * @param {boolean[][]} visited - 訪問済みかを記録する2次元配列
+ * @returns {Array<[number, number]>} 発見したグループの座標リスト
+ */
+function findConnectedPuyos(x, y, puyoType, visited) {
     const queue = [[x, y]];
     const group = [];
-    if (visited[y][x] || !field[y] || field[y][x] !== puyoType) return [];
+
+    if (visited[y][x] || !gameState.gameGrid[y] || gameState.gameGrid[y][x] !== puyoType) return [];
+
     visited[y][x] = true;
     group.push([x, y]);
     let head = 0;
-    while(head < queue.length) {
+    while (head < queue.length) {
         const [cx, cy] = queue[head++];
-        for (let [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        // 上下左右の4方向をチェック
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
             const nx = cx + dx;
             const ny = cy + dy;
-            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS &&
-                field[ny][nx] === puyoType && !visited[ny][nx]) {
+            if (nx >= 0 && nx < CONFIG.COLS && ny >= 0 && ny < CONFIG.ROWS &&
+                gameState.gameGrid[ny][nx] === puyoType && !visited[ny][nx]) {
                 visited[ny][nx] = true;
                 queue.push([nx, ny]);
                 group.push([nx, ny]);
             }
-        }
+        });
     }
     return group;
 }
 
-// スコア加算時にアニメーションを表示する
-function showScorePopup(amount) {
-    const container = document.getElementById("score-popup-container");
-    const popup = document.createElement("p");
-    popup.textContent = `+${amount}`;
-    popup.className = "score-popup";
-    container.appendChild(popup);
-    setTimeout(() => { popup.remove(); }, 1500);
-}
-
-// 新しいぷよのペア（ピース）を生成する
-function newPiece() {
+/**
+ * 新しいぷよのペア（2個1組）を生成する
+ * @returns {object} 新しいぷよペアオブジェクト
+ */
+function createNewPuyoPair() {
+    const puyoTypes = gameState.puyoTypesInUse;
     const piece = {
-        pivot: { x: Math.floor(COLS / 2) - 1, y: 0, puyoType: PUYO_TYPES[Math.floor(Math.random() * PUYO_TYPES.length)] },
-        mobile: { dx: Math.random() < 0.5 ? 1 : 0, dy: 0, puyoType: PUYO_TYPES[Math.floor(Math.random() * PUYO_TYPES.length)] },
+        pivot: { x: Math.floor(CONFIG.COLS / 2) - 1, y: 0, puyoType: puyoTypes[Math.floor(Math.random() * puyoTypes.length)] },
+        mobile: { dx: 1, dy: 0, puyoType: puyoTypes[Math.floor(Math.random() * puyoTypes.length)] },
     };
-    if (piece.mobile.dx === 0) { piece.mobile.dy = 1; }
+    // 稀に縦組で生成
+    if (Math.random() < 0.2) {
+        piece.mobile = { dx: 0, dy: 1, ...piece.mobile };
+    }
     return piece;
 }
 
-// 落下しきったぷよを盤面に固定する
-function fixPiece() {
-    if (!currentPiece) return;
+/**
+ * 操作中のぷよをグリッドに固定する
+ */
+function fixPuyoPairToGrid() {
+    if (!gameState.currentPuyoPair) return;
+
     playSound(SOUNDS.land);
-    const { pivot, mobile } = currentPiece;
-    if (pivot.y >= 0 && pivot.y < ROWS) {
-        field[pivot.y][pivot.x] = pivot.puyoType;
+    const { pivot, mobile } = gameState.currentPuyoPair;
+
+    // 軸ぷよをグリッドに配置
+    if (pivot.y >= 0 && pivot.y < CONFIG.ROWS) {
+        gameState.gameGrid[pivot.y][pivot.x] = pivot.puyoType;
     }
+    // 相方ぷよをグリッドに配置
     const mobileY = pivot.y + mobile.dy;
     const mobileX = pivot.x + mobile.dx;
-    if (mobileY >= 0 && mobileY < ROWS) {
-        field[mobileY][mobileX] = mobile.puyoType;
+    if (mobileY >= 0 && mobileY < CONFIG.ROWS) {
+        gameState.gameGrid[mobileY][mobileX] = mobile.puyoType;
     }
-    currentPiece = null;
+
+    gameState.currentPuyoPair = null; // 操作中のぷよをなくす
 }
 
-// ゲーム画面のすべて（背景、盤面、操作中のぷよ）を描画する
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (currentGameBackgroundImage.complete && currentGameBackgroundImage.naturalHeight !== 0) {
-        ctx.drawImage(currentGameBackgroundImage, 0, 0, canvas.width, canvas.height);
-    }
-    for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-            if (field[y][x]) drawBlock(ctx, x, y, field[y][x]);
-        }
-    }
-    if (currentPiece) drawPiece();
+/**
+ * グリッドを空の状態で初期化する
+ */
+function initializeGrid() {
+    gameState.gameGrid = Array.from({ length: CONFIG.ROWS }, () => Array(CONFIG.COLS).fill(null));
+    gameState.isGameOver = false;
+    gameState.currentPuyoPair = null;
 }
 
-// NEXT表示を描画する
-function drawNextPiece() {
-    if (!nextPiece) return;
-    nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
-
-    const { pivot, mobile } = nextPiece;
-    
-    // nextCanvas専用のブロックサイズを、現在のキャンバス幅を元に動的に計算
-    const nextBlockSize = nextCanvas.width / 2; // 140px / 2 = 70px
-
-    // 新しいブロックサイズを基準にぷよの描画位置を計算
-    const pivotX = (nextCanvas.width - (Math.abs(mobile.dx) + 1) * nextBlockSize) / 2;
-    const pivotY = (nextCanvas.height - (Math.abs(mobile.dy) + 1) * nextBlockSize) / 2;
-    const mobileX = pivotX + mobile.dx * nextBlockSize;
-    const mobileY = pivotY + mobile.dy * nextBlockSize;
-
-    // ぷよを新しいサイズで描画
-    const pivotImg = IMAGES[pivot.puyoType];
-    if (pivotImg) {
-        nextCtx.drawImage(pivotImg, pivotX, pivotY, nextBlockSize, nextBlockSize);
-    }
-    
-    const mobileImg = IMAGES[mobile.puyoType];
-    if (mobileImg) {
-        nextCtx.drawImage(mobileImg, mobileX, mobileY, nextBlockSize, nextBlockSize);
-    }
-}
-
-// 操作中のぷよ（2個1組）を描画する
-function drawPiece() {
-    if (!currentPiece) return;
-    const { pivot, mobile } = currentPiece;
-    drawBlock(ctx, pivot.x, pivot.y, pivot.puyoType);
-    drawBlock(ctx, pivot.x + mobile.dx, pivot.y + mobile.dy, mobile.puyoType);
-}
-
-// ぷよ1個を描画する
-function drawBlock(targetCtx, x, y, puyoType) {
-    if (y < 0) return;
-    const img = IMAGES[puyoType];
-    if (img) {
-        targetCtx.drawImage(img, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-    } else {
-        targetCtx.fillStyle = 'grey';
-        targetCtx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-    }
-}
-
-// ゲーム画面左に使用中のぷよ画像一覧を表示する
-function displayImages() {
-    const area = document.getElementById("image-display-area");
-    area.innerHTML = '';
-
-    // レンモードと友達モードのぷよ定義を一時的に結合して名前を検索しやすくする
-    const allPuyoData = [...REN_MODE_IMAGES, ...FRIENDS_MODE_CHOICES];
-
-    // 現在ゲームで使われているぷよの種類（PUYO_TYPES）を元にリストを生成
-    PUYO_TYPES.forEach(puyoId => {
-        // IDを元に、名前を含むぷよの全データを検索
-        const puyoData = allPuyoData.find(p => p.id === puyoId);
-        if (!puyoData || !IMAGES[puyoId]) return;
-
-        // 画像と名前を囲むコンテナを作成
-        const itemContainer = document.createElement('div');
-        itemContainer.className = 'image-list-item';
-
-        // 画像を作成
-        const img = IMAGES[puyoId].cloneNode();
-
-        // 名前を表示するspanを作成
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'image-list-name';
-        nameSpan.textContent = puyoData.name;
-
-        itemContainer.appendChild(img);
-        itemContainer.appendChild(nameSpan);
-        area.appendChild(itemContainer);
-    });
-}
-// スコア表示を更新する
-function updateScoreDisplay() {
-    document.getElementById("score-display").textContent = score + "g";
-}
-
-// 操作中のぷよ全体が指定方向に移動可能か判定する
-function canPieceMove(dx, dy) {
-    if (!currentPiece) return false;
-    const { pivot, mobile } = currentPiece;
-    return canMove(pivot.x + dx, pivot.y + dy) && canMove(pivot.x + mobile.dx + dx, pivot.y + mobile.dy + dy);
-}
-
-// 操作中のぷよを回転させる
-function rotatePiece() {
-    if (!currentPiece || isProcessing) return;
-    const { pivot, mobile } = currentPiece;
-    const { dx, dy } = mobile;
-    let next_dx = dy; let next_dy = -dx;
-    if (canMove(pivot.x + next_dx, pivot.y + next_dy)) {
-        mobile.dx = next_dx; mobile.dy = next_dy;
-    }
-    draw();
-}
-
-// ゲームオーバー条件を満たしているか判定する
-function isGameOver() { return field[0][Math.floor(COLS / 2) - 1] || field[0][Math.floor(COLS / 2)]; }
-
-// ゲーム盤面を空の状態で初期化する
-function initField() {
-    field = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-    gameOver = false;
-    currentPiece = null;
-}
-
-// 指定された座標が移動可能か（壁や他のぷよがないか）判定する
-function canMove(x, y) { return x >= 0 && x < COLS && y < ROWS && (y < 0 || field[y][x] === null); }
-
-// 宙に浮いているぷよをすべて下に落とす
-function dropBlocks() {
-    for (let x = 0; x < COLS; x++) {
-        for (let y = ROWS - 2; y >= 0; y--) {
-            if (field[y][x] && !field[y + 1][x]) {
+/**
+ * 宙に浮いているぷよをすべて下に落とす
+ */
+function dropFloatingPuyos() {
+    for (let x = 0; x < CONFIG.COLS; x++) {
+        for (let y = CONFIG.ROWS - 2; y >= 0; y--) {
+            // 現在のマスにぷよがあり、その真下が空の場合
+            if (gameState.gameGrid[y][x] && !gameState.gameGrid[y + 1][x]) {
                 let dropY = y;
-                while (dropY + 1 < ROWS && !field[dropY + 1][x]) {
-                    field[dropY + 1][x] = field[dropY][x];
-                    field[dropY][x] = null; dropY++;
+                // どこまで落ちるか計算
+                while (dropY + 1 < CONFIG.ROWS && !gameState.gameGrid[dropY + 1][x]) {
+                    // 1マスずつ落とす
+                    gameState.gameGrid[dropY + 1][x] = gameState.gameGrid[dropY][x];
+                    gameState.gameGrid[dropY][x] = null;
+                    dropY++;
                 }
             }
         }
     }
 }
 
-// 画面上の操作ボタンにイベントリスナーを設定する
-function setupControls() {
-    document.getElementById("left").addEventListener("click", () => { if (!isProcessing && currentPiece && canPieceMove(-1, 0)) currentPiece.pivot.x--; draw(); });
-    document.getElementById("right").addEventListener("click", () => { if (!isProcessing && currentPiece && canPieceMove(1, 0)) currentPiece.pivot.x++; draw(); });
-    document.getElementById("down").addEventListener("click", () => { if (!isProcessing && currentPiece && canPieceMove(0, 1)) currentPiece.pivot.y++; draw(); });
-    document.getElementById("rotate").addEventListener("click", rotatePiece);
-    document.getElementById("reset").addEventListener("click", restartGame);
-}
+/**
+ * =================================================================
+ * 描画関連
+ * =================================================================
+ */
 
-// キーボード入力のイベントリスナー
-document.addEventListener("keydown", (e) => {
-    if (gameOver || isProcessing || !currentPiece) return;
-    if (e.key === "ArrowLeft") { if (canPieceMove(-1, 0)) currentPiece.pivot.x--; }
-    else if (e.key === "ArrowRight") { if (canPieceMove(1, 0)) currentPiece.pivot.x++; }
-    else if (e.key === "ArrowDown") { if (canPieceMove(0, 1)) currentPiece.pivot.y++; }
-    else if (e.key === "ArrowUp") { rotatePiece(); }
-    else if (e.key.toLowerCase() === "r") { restartGame(); }
-    draw();
-});
-
-// --- イベントリスナーと初期化 ---
-modeRenButton.addEventListener("click", () => {
-    selectedMode = 'ren';
-    titleScreen.style.display = 'none';
-    difficultySelectionScreen.style.display = 'flex';
-    backToTitleBtn.style.display = 'inline-block';
-});
-modeFriendsButton.addEventListener("click", () => {
-    selectedMode = 'friends';
-    titleScreen.style.display = 'none';
-    difficultySelectionScreen.style.display = 'flex';
-    backToTitleBtn.style.display = 'inline-block';
-});
-
-document.getElementById('easy-btn').addEventListener('click', () => handleDifficultySelect('easy'));
-document.getElementById('normal-btn').addEventListener('click', () => handleDifficultySelect('normal'));
-document.getElementById('hard-btn').addEventListener('click', () => handleDifficultySelect('hard'));
-
-function handleDifficultySelect(difficulty) {
-    gameSpeed = GAME_SPEEDS[difficulty];
-    difficultySelectionScreen.style.display = 'none';
-    if (selectedMode === 'ren') {
-        startRenModeGame();
-    } else if (selectedMode === 'friends') {
-        setupPuyoSelection();
-        resetPuyoSelection();
-        puyoSelectionScreen.style.display = 'flex';
+/**
+ * ゲーム画面全体（背景、グリッド、操作中ぷよ）を描画する
+ */
+function drawGame() {
+    CTX.clearRect(0, 0, DOM.canvas.width, DOM.canvas.height);
+    if (currentGameBackgroundImage.complete && currentGameBackgroundImage.naturalHeight !== 0) {
+        CTX.drawImage(currentGameBackgroundImage, 0, 0, DOM.canvas.width, DOM.canvas.height);
+    }
+    // グリッド上のぷよを描画
+    for (let y = 0; y < CONFIG.ROWS; y++) {
+        for (let x = 0; x < CONFIG.COLS; x++) {
+            if (gameState.gameGrid[y][x]) {
+                drawPuyo(CTX, x, y, gameState.gameGrid[y][x]);
+            }
+        }
+    }
+    // 操作中のぷよを描画
+    if (gameState.currentPuyoPair) {
+        drawCurrentPuyoPair();
     }
 }
 
-document.getElementById('puyo-choices-container').addEventListener('click', handlePuyoChoiceClick);
-document.getElementById('reset-selection-btn').addEventListener('click', resetPuyoSelection);
-document.getElementById('confirm-yes-btn').addEventListener('click', startFriendsModeGame);
-document.getElementById('confirm-no-btn').addEventListener('click', () => {
-    document.getElementById('confirmation-popup').style.display = 'none';
-    if (selectedPuyos.length === 5) {
-        const lastSelectedId = selectedPuyos.pop();
-        const itemToDeselect = document.querySelector(`.puyo-choice-item[data-puyo-id="${lastSelectedId}"]`);
-        if(itemToDeselect) itemToDeselect.classList.remove('selected');
-    }
-});
+/**
+ * NEXT表示を描画する
+ */
+function drawNextPuyoPair() {
+    if (!gameState.nextPuyoPair) return;
+    NEXT_CTX.clearRect(0, 0, DOM.nextCanvas.width, DOM.nextCanvas.height);
 
-backToTitleBtn.addEventListener('click', goBackToTitle);
-gameOverTitleBtn.addEventListener('click', goBackToTitle); // タイトルへ戻るボタン
-document.getElementById('ingame-back-to-title-btn').addEventListener('click', goBackToTitle);
-gameOverRetryBtn.addEventListener('click', () => { // おかわりボタン
-    gameOverPopup.style.display = 'none';
+    const { pivot, mobile } = gameState.nextPuyoPair;
     
-    // 現在のモードのBGMを再生し直す
-    stopAllBGM();
-    if (selectedMode === 'ren') {
-        playSound(SOUNDS.renModeBGM);
-    } else if (selectedMode === 'friends') {
-        playSound(SOUNDS.friendsModeBGM);
+    // nextCanvas専用のブロックサイズを動的に計算
+    const nextBlockSize = DOM.nextCanvas.width / 2.5;
+
+    // ぷよの描画位置を計算
+    const pivotX = (DOM.nextCanvas.width - (Math.abs(mobile.dx) + 1) * nextBlockSize) / 2;
+    const pivotY = (DOM.nextCanvas.height - (Math.abs(mobile.dy) + 1) * nextBlockSize) / 2;
+    const mobileX = pivotX + mobile.dx * nextBlockSize;
+    const mobileY = pivotY + mobile.dy * nextBlockSize;
+
+    // ぷよを描画
+    const pivotImg = gameState.loadedImages[pivot.puyoType];
+    if (pivotImg) {
+        NEXT_CTX.drawImage(pivotImg, pivotX, pivotY, nextBlockSize, nextBlockSize);
     }
+    
+    const mobileImg = gameState.loadedImages[mobile.puyoType];
+    if (mobileImg) {
+        NEXT_CTX.drawImage(mobileImg, mobileX, mobileY, nextBlockSize, nextBlockSize);
+    }
+}
 
-    restartGame();
-});
+/**
+ * 操作中のぷよペアを描画する
+ */
+function drawCurrentPuyoPair() {
+    if (!gameState.currentPuyoPair) return;
+    const { pivot, mobile } = gameState.currentPuyoPair;
+    drawPuyo(CTX, pivot.x, pivot.y, pivot.puyoType);
+    drawPuyo(CTX, pivot.x + mobile.dx, pivot.y + mobile.dy, mobile.puyoType);
+}
 
-// 全てのボタンにクリック音を設定
-// ...
+/**
+ * 1つのぷよを描画する
+ * @param {CanvasRenderingContext2D} targetCtx - 描画対象のコンテキスト
+ * @param {number} x - グリッドX座標
+ * @param {number} y - グリッドY座標
+ * @param {string} puyoType - 描画するぷよの種類 (ID)
+ */
+function drawPuyo(targetCtx, x, y, puyoType) {
+    if (y < 0) return; // 画面外は描画しない
+    const img = gameState.loadedImages[puyoType];
+    const size = CONFIG.BLOCK_SIZE;
+    if (img) {
+        targetCtx.drawImage(img, x * size, y * size, size, size);
+    } else { // 画像読み込み失敗時のフォールバック
+        targetCtx.fillStyle = 'grey';
+        targetCtx.fillRect(x * size, y * size, size, size);
+    }
+}
 
-document.querySelectorAll('.btn-effect').forEach(button => {
-    button.addEventListener('click', () => {
-        playSound(SOUNDS.click);
+/**
+ * ゲーム画面左側に使用中のぷよ画像一覧を表示する
+ */
+function displayPuyoListInGame() {
+    DOM.imageDisplayArea.innerHTML = '';
+    const allPuyoData = [...CONFIG.REN_MODE.PUYOS, ...CONFIG.FRIENDS_MODE.PUYOS];
+
+    gameState.puyoTypesInUse.forEach(puyoId => {
+        const puyoData = allPuyoData.find(p => p.id === puyoId);
+        if (!puyoData || !gameState.loadedImages[puyoId]) return;
+
+        const itemContainer = document.createElement('div');
+        itemContainer.className = 'image-list-item';
+
+        const img = gameState.loadedImages[puyoId].cloneNode();
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'image-list-name';
+        nameSpan.textContent = puyoData.name;
+
+        itemContainer.appendChild(img);
+        itemContainer.appendChild(nameSpan);
+        DOM.imageDisplayArea.appendChild(itemContainer);
     });
-});
+}
 
-setupControls();
+/**
+ * スコア表示を更新する
+ */
+function updateScoreDisplay() {
+    DOM.scoreDisplay.textContent = gameState.score + "g";
+}
 
-// 最初の操作で音声を有効化するリスナーを追加
-document.addEventListener('click', unlockAudio);
-document.addEventListener('keydown', unlockAudio);
-
-/* game.js の resizeGameLayout 関数を以下のように書き換える */
-
-function resizeGameLayout() {
-  const gameContainer = document.getElementById('game-container');
-
-  const windowWidth = window.innerWidth;
-  const windowHeight = window.innerHeight;
-
-  const baseWidth = 700; 
-  const baseHeight = 800; 
-
-  // ▼▼▼ ここの計算から余白(- 40)を削除 ▼▼▼
-  const availableWidth = windowWidth;
-  const availableHeight = windowHeight;
-
-  const scaleBasedOnHeight = availableHeight / baseHeight;
-  const scaleBasedOnWidth = availableWidth / baseWidth;
-
-  const scale = Math.min(scaleBasedOnHeight, scaleBasedOnWidth);
-
-  gameContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
+/**
+ * スコア加算時にアニメーションポップアップを表示する
+ * @param {number} amount - 加算されたスコア量
+ */
+function showScorePopup(amount) {
+    const popup = document.createElement("p");
+    popup.textContent = `+${amount}`;
+    popup.className = "score-popup";
+    DOM.scorePopupContainer.appendChild(popup);
+    setTimeout(() => { popup.remove(); }, 1500);
 }
 
 
-function resizeGameOverPopup() {
-    const popupContent = document.querySelector('#game-over-popup .popup-content');
-    if (!popupContent) return;
+/**
+ * =================================================================
+ * プレイヤー操作・判定
+ * =================================================================
+ */
 
-    // --- 1. ポップアップの基本設定 ---
-    // ポップアップの基本となる形（アスペクト比）と文字サイズを定義します。
-    const BASE_WIDTH = 520;      // 基本の横幅 (px)
-    const BASE_HEIGHT = 480;     // 基本の縦幅 (px)
-    const BASE_FONT_SIZE = 6;   // 拡縮率100%の時の基本フォントサイズ (px)
-
-    // --- 2. 現在の画面サイズを取得 ---
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    // --- 3. 最適な縮尺（スケール）を計算 ---
-    // 横幅と縦幅、それぞれが画面に収まるための縮尺を計算
-    const scaleX = (viewportWidth - 40) / BASE_WIDTH;   // 左右に20pxずつの余白を考慮
-    const scaleY = (viewportHeight - 40) / BASE_HEIGHT; // 上下に20pxずつの余白を考慮
-
-    // 横幅と縦幅の両方が画面に収まる、より小さい方の縮尺を採用
-    const uniformScale = Math.min(scaleX, scaleY);
-
-    // --- 4. 計算したスタイルを適用 ---
-    // ポップアップ全体を「均等に」拡縮します（これにより歪みません）
-    popupContent.style.transform = `translate(-50%, -50%) scale(${uniformScale})`;
-
-    // ポップアップの拡縮に合わせて、中の文字の基本サイズも調整します
-    // これにより、テキストだけが大きすぎたり小さすぎたりするのを防ぎます
-    popupContent.style.fontSize = `${BASE_FONT_SIZE * uniformScale}px`;
+/**
+ * 指定された座標が移動可能か（グリッド範囲内で、他のぷよがないか）を判定する
+ * @param {number} x - X座標
+ * @param {number} y - Y座標
+ * @returns {boolean} 移動可能ならtrue
+ */
+function isPositionValid(x, y) {
+    return x >= 0 && x < CONFIG.COLS && y < CONFIG.ROWS && (y < 0 || gameState.gameGrid[y][x] === null);
 }
-// ページ読み込み時とウィンドウリサイズ時にレイアウト調整関数を実行
-// 画面リサイズ時に適切な関数を呼び出す処理
+
+/**
+ * 操作中のぷよペアが指定方向に移動可能か判定する
+ * @param {number} dx - X方向の移動量
+ * @param {number} dy - Y方向の移動量
+ * @returns {boolean} 移動可能ならtrue
+ */
+function canPuyoPairMove(dx, dy) {
+    if (!gameState.currentPuyoPair) return false;
+    const { pivot, mobile } = gameState.currentPuyoPair;
+    return isPositionValid(pivot.x + dx, pivot.y + dy) &&
+           isPositionValid(pivot.x + mobile.dx + dx, pivot.y + mobile.dy + dy);
+}
+
+/**
+ * 操作中のぷよを回転させる
+ */
+function rotatePuyoPair() {
+    if (!gameState.currentPuyoPair || gameState.isProcessing) return;
+    const { pivot, mobile } = gameState.currentPuyoPair;
+    const { dx, dy } = mobile;
+
+    // 90度回転の行列計算 (x' = -y, y' = x)
+    const next_dx = -dy;
+    const next_dy = dx;
+
+    // 回転後の座標が有効かチェック
+    if (isPositionValid(pivot.x + next_dx, pivot.y + next_dy)) {
+        mobile.dx = next_dx;
+        mobile.dy = next_dy;
+    }
+    drawGame();
+}
+
+/**
+ * ゲームオーバー条件を満たしているか判定する
+ * @returns {boolean} ゲームオーバーならtrue
+ */
+function checkGameOver() {
+    // ぷよの出現位置が埋まっているかチェック
+    return gameState.gameGrid[0][Math.floor(CONFIG.COLS / 2) - 1] || gameState.gameGrid[0][Math.floor(CONFIG.COLS / 2)];
+}
+
+
+/**
+ * =================================================================
+ * イベントハンドラ
+ * =================================================================
+ */
+
+/**
+ * 難易度選択ボタンがクリックされた時の処理
+ * @param {string} difficulty - 'easy', 'normal', 'hard'
+ */
+function handleDifficultySelect(difficulty) {
+    gameState.gameSpeed = CONFIG.GAME_SPEEDS[difficulty];
+    DOM.difficultySelectionScreen.style.display = 'none';
+
+    if (gameState.selectedMode === 'ren') {
+        startGame();
+    } else if (gameState.selectedMode === 'friends') {
+        setupPuyoSelectionScreen();
+        resetPuyoSelection();
+        DOM.puyoSelectionScreen.style.display = 'flex';
+    }
+}
+
+/**
+ * 友達モードでぷよ選択がクリックされた時の処理
+ * @param {MouseEvent} e - クリックイベント
+ */
+function handlePuyoChoiceClick(e) {
+    const targetItem = e.target.closest('.puyo-choice-item');
+    if (!targetItem) return;
+
+    const puyoId = targetItem.dataset.puyoId;
+    const isSelected = targetItem.classList.contains('selected');
+
+    if (isSelected) {
+        targetItem.classList.remove('selected');
+        gameState.selectedPuyosForFriendsMode = gameState.selectedPuyosForFriendsMode.filter(id => id !== puyoId);
+    } else {
+        if (gameState.selectedPuyosForFriendsMode.length < 5) {
+            targetItem.classList.add('selected');
+            gameState.selectedPuyosForFriendsMode.push(puyoId);
+        }
+    }
+    // 5個選択されたら確認ポップアップを表示
+    if (gameState.selectedPuyosForFriendsMode.length === 5) {
+        DOM.confirmationPopup.style.display = 'flex';
+    } else {
+        DOM.confirmationPopup.style.display = 'none';
+    }
+}
+
+/**
+ * キーボード入力のイベント処理
+ * @param {KeyboardEvent} e - キーボードイベント
+ */
+function handleKeyDown(e) {
+    if (gameState.isGameOver || gameState.isProcessing || !gameState.currentPuyoPair) return;
+
+    let moved = false;
+    switch (e.key) {
+        case "ArrowLeft":
+            if (canPuyoPairMove(-1, 0)) {
+                gameState.currentPuyoPair.pivot.x--;
+                moved = true;
+            }
+            break;
+        case "ArrowRight":
+            if (canPuyoPairMove(1, 0)) {
+                gameState.currentPuyoPair.pivot.x++;
+                moved = true;
+            }
+            break;
+        case "ArrowDown":
+            if (canPuyoPairMove(0, 1)) {
+                gameState.currentPuyoPair.pivot.y++;
+                moved = true;
+            }
+            break;
+        case "ArrowUp":
+            rotatePuyoPair();
+            // 回転はそれ自体が描画を伴うので moved フラグは不要
+            break;
+        case "r":
+        case "R":
+            // ゲーム中リスタートのショートカット
+            restartGame();
+            break;
+    }
+    if (moved) {
+        drawGame();
+    }
+}
+
+/**
+ * ウィンドウリサイズ時のレイアウト調整
+ */
 function handleResize() {
-    if (gameContainer.style.display === 'flex') {
+    if (DOM.gameContainer.style.display === 'flex') {
         resizeGameLayout();
     }
-    if (gameOverPopup.style.display === 'flex') {
+    if (DOM.gameOverPopup.style.display === 'flex') {
         resizeGameOverPopup();
     }
 }
 
-// ページ読み込み時とウィンドウリサイズ時に上記の処理を実行
-window.addEventListener('load', handleResize);
-window.addEventListener('resize', handleResize);
-// ▲▲▲ ここまで追加 ▲▲▲
+
+/**
+ * =================================================================
+ * レイアウト・リサイズ処理
+ * =================================================================
+ */
+
+/**
+ * ゲームコンテナのサイズをウィンドウに合わせて調整する
+ */
+function resizeGameLayout() {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const baseWidth = 700;
+    const baseHeight = 800;
+
+    const scale = Math.min(windowHeight / baseHeight, windowWidth / baseWidth);
+
+    DOM.gameContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+/**
+ * ゲームオーバーポップアップのサイズをウィンドウに合わせて調整する
+ */
+function resizeGameOverPopup() {
+    const popupContent = DOM.gameOverPopup.querySelector('.popup-content');
+    if (!popupContent) return;
+
+    const BASE_WIDTH = 520;
+    const BASE_HEIGHT = 480;
+    const BASE_FONT_SIZE = 6;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // 上下左右に20pxずつの余白を考慮
+    const scaleX = (viewportWidth - 40) / BASE_WIDTH;
+    const scaleY = (viewportHeight - 40) / BASE_HEIGHT;
+    const uniformScale = Math.min(scaleX, scaleY);
+
+    popupContent.style.transform = `translate(-50%, -50%) scale(${uniformScale})`;
+    popupContent.style.fontSize = `${BASE_FONT_SIZE * uniformScale}px`;
+}
+
+
+/**
+ * =================================================================
+ * イベントリスナーの設定
+ * =================================================================
+ */
+function initializeEventListeners() {
+    // モード選択
+    DOM.buttons.modeRen.addEventListener("click", () => {
+        gameState.selectedMode = 'ren';
+        DOM.titleScreen.style.display = 'none';
+        DOM.difficultySelectionScreen.style.display = 'flex';
+        DOM.backToTitleBtn.style.display = 'inline-block';
+    });
+    DOM.buttons.modeFriends.addEventListener("click", () => {
+        gameState.selectedMode = 'friends';
+        DOM.titleScreen.style.display = 'none';
+        DOM.difficultySelectionScreen.style.display = 'flex';
+        DOM.backToTitleBtn.style.display = 'inline-block';
+    });
+
+    // 難易度選択
+    DOM.buttons.easy.addEventListener('click', () => handleDifficultySelect('easy'));
+    DOM.buttons.normal.addEventListener('click', () => handleDifficultySelect('normal'));
+    DOM.buttons.hard.addEventListener('click', () => handleDifficultySelect('hard'));
+
+    // 友達モード: ぷよ選択
+    DOM.puyoChoicesContainer.addEventListener('click', handlePuyoChoiceClick);
+    DOM.buttons.resetSelection.addEventListener('click', resetPuyoSelection);
+    DOM.buttons.confirmYes.addEventListener('click', startGame);
+    DOM.buttons.confirmNo.addEventListener('click', () => {
+        DOM.confirmationPopup.style.display = 'none';
+    });
+
+    // タイトルに戻るボタン
+    DOM.backToTitleBtn.addEventListener('click', goBackToTitle);
+    DOM.ingameBackToTitleBtn.addEventListener('click', goBackToTitle);
+    DOM.buttons.gameOverTitle.addEventListener('click', goBackToTitle);
+
+    // おかわり（リトライ）ボタン
+    DOM.buttons.gameOverRetry.addEventListener('click', () => {
+        DOM.gameOverPopup.style.display = 'none';
+        stopAllBGM();
+        if (gameState.selectedMode === 'ren') {
+            playSound(SOUNDS.renModeBGM);
+        } else if (gameState.selectedMode === 'friends') {
+            playSound(SOUNDS.friendsModeBGM);
+        }
+        restartGame();
+    });
+    DOM.buttons.ingameReset.addEventListener("click", restartGame);
+
+    // ゲーム操作ボタン
+    DOM.buttons.left.addEventListener("click", () => { if (!gameState.isProcessing && gameState.currentPuyoPair && canPuyoPairMove(-1, 0)) { gameState.currentPuyoPair.pivot.x--; drawGame(); } });
+    DOM.buttons.right.addEventListener("click", () => { if (!gameState.isProcessing && gameState.currentPuyoPair && canPuyoPairMove(1, 0)) { gameState.currentPuyoPair.pivot.x++; drawGame(); } });
+    DOM.buttons.down.addEventListener("click", () => { if (!gameState.isProcessing && gameState.currentPuyoPair && canPuyoPairMove(0, 1)) { gameState.currentPuyoPair.pivot.y++; drawGame(); } });
+    DOM.buttons.rotate.addEventListener("click", rotatePuyoPair);
+    
+    // キーボード操作
+    document.addEventListener("keydown", handleKeyDown);
+
+    // ウィンドウリサイズ
+    window.addEventListener('load', handleResize);
+    window.addEventListener('resize', handleResize);
+
+    // サウンド有効化
+    document.addEventListener('click', initializeAudio);
+    document.addEventListener('keydown', initializeAudio);
+
+    // 全てのボタンにクリック音を設定
+    document.querySelectorAll('.btn-effect').forEach(button => {
+        button.addEventListener('click', () => playSound(SOUNDS.click));
+    });
+}
+
+/**
+ * =================================================================
+ * 初期化処理
+ * =================================================================
+ */
+initializeEventListeners();
