@@ -74,7 +74,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 25px;
-  flex-wrap: wrap; /* この行を追加 */
+  flex-wrap: wrap;
 }
 
 /* --- 画面全体に適用されるオーバーレイの基本スタイル --- */
@@ -474,3 +474,4 @@ canvas {
     display: inline;
   }
 }
+
