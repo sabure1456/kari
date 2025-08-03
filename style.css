@@ -37,6 +37,7 @@ body {
   cursor: pointer;
   text-decoration: none;
   color: black;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
   font-weight: bold;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.2s;
@@ -73,6 +74,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 25px;
+  flex-wrap: wrap; /* この行を追加 */
 }
 
 /* --- 画面全体に適用されるオーバーレイの基本スタイル --- */
@@ -98,7 +100,10 @@ body {
   color: white;
   text-shadow: 1px 1px 3px #333;
 }
-
+#puyo-selection-screen h2 {
+  /* clamp(最小サイズ, 可変サイズ, 最大サイズ) */
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+}
 #title-screen .button-group button,
 #difficulty-selection-screen .button-group button {
   margin: 0 10px;
@@ -152,11 +157,11 @@ body {
     color: black;
     text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; 
 }
-
+#image-display-area, #game-screen, #side-panel {
+  box-sizing: border-box;
+}
 #reset-selection-btn {
-  position: absolute;
-  bottom: 10%;
-  left: calc(50% - 240px);
+  margin-top: 30px; 
 }
 
 .popup-content {
@@ -180,30 +185,43 @@ body {
     font-size: 14px;
     color: white;
     text-shadow: 1px 1px 2px black;
+    text-align: left;
 }
 
+#credits a {
+  color: #a9d8ff; /* リンクの文字色を水色に */
+}
 /* --- ゲーム中の画面 --- */
 #game-container {
   display: none;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 80px;
   gap: 20px;
   color: white;
-  width: 100%;
+  /* width: 100%; を削除 */
   box-sizing: border-box;
+  
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  transform-origin: center center;
+  
+  /* transition から margin-top を削除 */
+  transition: transform 0.2s ease;
 }
 #game-screen p {
     font-size: 1em;
 }
 
-#image-display-area, #side-panel {
+#image-display-area {
   width: 120px;
   padding-top: 50px;
 }
 
 #side-panel {
     width: 160px;
+    padding-top: -30px;
     text-align: center;
 }
 
@@ -216,7 +234,7 @@ body {
 }
 
 #side-panel h3:nth-of-type(2) {
-  margin-top: 80px;
+  margin-top: 40px;
 }
 #score-display {
   font-size: 2em;
@@ -227,6 +245,7 @@ body {
   border-radius: 8px;
   min-height: 1.5em;
   margin-top: 20px;
+  margin-bottom: -20px;
   text-shadow: 2px 2px 4px #000;
 }
 
@@ -272,6 +291,7 @@ canvas {
   text-decoration: none;
   background: #668ad8;
   color: #FFF;
+  text-shadow: none;
   border-bottom: solid 6px #627295;
   border-radius: 3px;
   cursor: pointer;
@@ -303,21 +323,29 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
 }
-
-#controls button#reset {
-  margin-top: 15px;
-  padding: 12px 32px;
-  width: auto;
+/* --- サイドパネル内ボタンのスタイル --- */
+#side-panel .btn-effect {
+  width: 100%;
+  padding: 10px 0;
+  box-sizing: border-box;
+  font-size: 16px;
+  border-width: 1px;
+}
+#ingame-back-to-title-btn {
+  margin-top: 0px;
 }
 
-#controls button#reset span {
-  font-size: 20px;
+#reset {
+  margin-top: 25px;
+}
+#side-panel .btn-effect span {
+  font-size: inherit;
   white-space: nowrap;
-  position: relative;
-  top: auto;
-  left: auto;
+  position: static;
   transform: none;
+  padding: 0;
 }
+
 
 /* --- スコア加算ポップアップ --- */
 #score-popup-container {
@@ -346,144 +374,6 @@ canvas {
   }
 }
 
-/* --- ▼▼▼ スマートフォン向けスタイル ▼▼▼ --- */
-@media screen and (max-width: 768px) {
-    
-    #back-to-title-btn {
-        left: 15px;
-        top: 15px;
-        padding: 5px 10px;
-        font-size: 12px;
-    }
-
-    #title-screen h1 { font-size: 2em; }
-    #title-screen .button-group,
-    #difficulty-selection-screen .button-group {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    #puyo-selection-screen h2 {
-        font-size: 1.5em;
-        margin-bottom: 15px;
-    }
-    #puyo-choices-container {
-        gap: 10px;
-        max-width: 100%;
-    }
-    .puyo-choice-item {
-        width: calc(20% - 12px); /* 5列に並べる */
-    }
-    .puyo-name {
-        font-size: 10px;
-    }
-
-    #reset-selection-btn {
-        left: 15px;
-        bottom: 15px;
-        font-size: 16px;
-        padding: 8px 12px;
-    }
-
-    .popup-content {
-        padding: 20px;
-    }
-    .popup-content p {
-        font-size: 1.2em;
-        white-space: nowrap;
-    }
-    .popup-content .button-group {
-        flex-direction: row;
-    }
-    .popup-content button {
-        min-width: 100px;
-        font-size: 1em;
-        padding: 10px;
-    }
-
-    /* --- ゲーム画面のレイアウトを3列に再構成 --- */
-    #game-container {
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: center;
-        padding-top: 60px; /* 上の余白を調整 */
-        gap: 5px;
-        height: auto;
-    }
-
-    /* 左パネル */
-    #image-display-area {
-        width: 40px;
-        padding-top: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-    #image-display-area img {
-        width: 30px;
-        height: 30px;
-        margin: 0;
-    }
-
-    /* 中央(ゲーム画面本体) */
-    #game-screen {
-        width: auto;
-    }
-    #gameCanvas {
-        width: 180px;   /* ゲーム画面を縮小 */
-        height: 360px;
-    }
-    #game-screen p.text-bg {
-        font-size: 0.7em;
-        padding: 2px 5px;
-        margin-bottom: 5px;
-    }
-
-    /* 右パネル */
-    #side-panel {
-        width: 90px;
-        padding-top: 0;
-    }
-    #side-panel h3 {
-        font-size: 0.8em;
-    }
-    #nextCanvas {
-        width: 80px;
-        height: 80px;
-    }
-    #score-display {
-        font-size: 1.2em;
-        padding: 5px;
-        margin-top: 5px;
-    }
-    
-    /* 操作ボタン */
-    #controls {
-        gap: 5px;
-        margin-top: 10px;
-    }
-    .main-controls {
-        gap: 5px;
-    }
-    .main-controls button {
-        width: 45px; /* ボタンを縮小 */
-        height: 45px;
-        border-bottom-width: 4px;
-    }
-    .main-controls button:active {
-        transform: translateY(4px);
-    }
-    #controls button span {
-        font-size: 20px;
-    }
-    #controls button#reset {
-        margin-top: 10px;
-        padding: 8px 15px;
-    }
-    #controls button#reset span {
-        font-size: 14px;
-    }
-}
 
 /* --- ゲーム中の画像リストのスタイル --- */
 .image-list-item {
@@ -497,7 +387,67 @@ canvas {
   width: 40px;
   height: 40px;
 }
+/* --- ゲームオーバー画面の結果表示スタイル --- */
+.game-over-title {
+  font-size: 1.6rem;
+  color: #d9534f;
+  margin-bottom: 25px;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; 
+  white-space: nowrap;
+}
 
+#game-over-popup .popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    transform-origin: center center;
+    transition: transform 0.2s ease;
+}
+#game-over-popup .popup-content button {
+    /* ボタンの左右の余白(padding)と最小幅(min-width)を
+      文字サイズに連動するem単位に変更します。
+      これで、文字が小さくなればボタンも追従して小さくなります。
+    */
+    padding: 0.6em 1em;
+    font-size: 1rem;
+}
+#final-score-text {
+  font-size: 1.3rem;
+  color: #333; /* 文字色をデフォルトに戻す */
+  font-weight: bold;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+.score-highlight {
+  color: #d9534f; /* 赤色 */
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; /* 白色の枠 */
+}
+/* --- ゲームオーバー画面のリンク --- */
+.popup-link-area {
+  margin: 20px 0 30px 0;
+  color: #333;
+  border-bottom: 1px solid #5353ff;
+  display: inline-block;
+}
+
+.popup-link-area p {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  white-space: nowrap;
+}
+
+.popup-link-area a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #5353ff; 
+  font-weight: bold;
+  font-size: 1.2rem;
+  transition: transform 0.2s;
+  white-space: nowrap;
+}
 /* デフォルト（スマホ表示）では名前を非表示にする */
 .image-list-name {
   display: none;
