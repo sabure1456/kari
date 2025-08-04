@@ -69,14 +69,14 @@
 <div id="game-container" style="display: none;">
     <div id="image-display-area"></div>
     <div id="game-screen">
-      <p class="text-bg">← →：移動　↓：落下　↺：回転</p>
+      <p class="text-bg">← →：移動　↓：落下　↻：回転</p>
       <canvas id="gameCanvas" width="480" height="960"></canvas>
       <div id="controls">
         <div class="main-controls">
           <button id="left"><span>←</span></button>
           <button id="down"><span>↓</span></button>
           <button id="right"><span>→</span></button>
-          <button id="rotate"><span>↺</span></button>
+          <button id="rotate"><span>↻</span></button>
         </div>
         </div>
     </div>
@@ -96,8 +96,6 @@
  
   </div>
 
-  <script src="game.js"></script>
+  <script src="game.js" defer></script>
 </body>
 </html>
-
-
