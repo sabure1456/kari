@@ -333,7 +333,7 @@ function restartGame() {
         clearTimeout(gameState.gameLoopTimeoutId);
     }
 
-    gameState.score = 9999999;
+    gameState.score = 9999990;
     updateScoreDisplay();
     initializeGrid();
     gameState.nextPuyoPair = createNewPuyoPair();
@@ -987,3 +987,4 @@ function initializeEventListeners() {
  * =================================================================
  */
 initializeEventListeners();
+
