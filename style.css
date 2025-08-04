@@ -7,7 +7,7 @@ body, html {
 }
 
 body {
-  background-image: url("images/background/background_all_middle.png");
+  background-image: url("images/background/background_all.webp");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
@@ -474,4 +474,5 @@ canvas {
     display: inline;
   }
 }
+
 
