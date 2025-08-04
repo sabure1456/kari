@@ -45,6 +45,12 @@ const NEXT_CTX = DOM.nextCanvas.getContext("2d");
  * サウンド関連 
  * =================================================================
  */
+// AudioContextは音声処理の中心となるオブジェクト
+let audioContext;
+// BGMの再生状態を管理するための変数
+let bgmSourceNode; 
+
+// 音声ファイルのパス
 const SOUND_PATHS = {
     titleBGM: 'audio/title_bgm.mp3',
     renModeBGM: 'audio/mode_ren_bgm.mp3',
@@ -127,12 +133,15 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
  * サウンド制御 (最適化版)
  * =================================================================
  */
-
 /**
  * ユーザーの初回アクション時に音声を有効化し、タイトルBGMを再生する
  */
 function initializeAudio() {
     if (gameState.isAudioUnlocked) return;
+    // AudioContextはユーザーの操作後に作成する必要がある
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
     gameState.isAudioUnlocked = true;
     playSound('titleBGM', true);
 
@@ -141,41 +150,77 @@ function initializeAudio() {
 }
 
 /**
- * 指定されたサウンドを再生する（キャッシュ対応版）
- * @param {string} soundName - 再生したい音声の名前 (例: 'click')
- * @param {boolean} isBGM - BGMの場合はループや音量設定を適用
+ * 指定されたサウンドを非同期で読み込み、バッファとしてキャッシュする
+ * @param {string} soundName - 読み込む音声の名前
  */
-function playSound(soundName, isBGM = false) {
-    if (!gameState.isAudioUnlocked && isBGM) return;
+async function loadSound(soundName) {
+    if (soundsCache[soundName]) return; // 既にキャッシュにあれば何もしない
 
-    if (!soundsCache[soundName]) {
-        soundsCache[soundName] = new Audio(SOUND_PATHS[soundName]);
-        // 音量設定
-        if (soundName === 'titleBGM') soundsCache[soundName].volume = 0.1;
-        if (soundName === 'renModeBGM' || soundName === 'friendsModeBGM') soundsCache[soundName].volume = 0.03;
-        if (soundName === 'clear' || soundName === 'gameOver' || soundName === 'land') soundsCache[soundName].volume = 0.2;
-        if (soundName === 'click') soundsCache[soundName].volume = 0.05;
-        // BGMならループさせる
-        if (isBGM) {
-            soundsCache[soundName].loop = true;
-        }
+    try {
+        const response = await fetch(SOUND_PATHS[soundName]);
+        const arrayBuffer = await response.arrayBuffer();
+        // 音声データをデコードしてバッファに変換
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        soundsCache[soundName] = audioBuffer; // デコードしたデータをキャッシュ
+    } catch(e) {
+        console.error(`Error loading sound: ${soundName}`, e);
     }
-    
-    const sound = soundsCache[soundName];
-    sound.currentTime = 0;
-    sound.play().catch(e => {});
 }
 
 /**
- * すべてのBGM（ループする音声）を停止する
+ * 指定されたサウンドを再生する
+ * @param {string} soundName - 再生したい音声の名前
+ * @param {boolean} isBGM - BGMかどうか
+ */
+async function playSound(soundName, isBGM = false) {
+    if (!audioContext || !gameState.isAudioUnlocked) return;
+    
+    // 音声データがキャッシュになければ読み込む
+    if (!soundsCache[soundName]) {
+        await loadSound(soundName);
+    }
+    
+    const audioBuffer = soundsCache[soundName];
+    if (!audioBuffer) return; // 読み込み失敗時は再生しない
+
+    if (isBGM) {
+        // 既存のBGMがあれば停止
+        if (bgmSourceNode) {
+            bgmSourceNode.stop();
+        }
+        // 新しいBGMを再生
+        bgmSourceNode = audioContext.createBufferSource();
+        bgmSourceNode.buffer = audioBuffer;
+        bgmSourceNode.loop = true; // BGMはループさせる
+        
+        const gainNode = audioContext.createGain();
+        if (soundName === 'titleBGM') gainNode.gain.value = 0.1;
+        if (soundName === 'renModeBGM' || soundName === 'friendsModeBGM') gainNode.gain.value = 0.03;
+        
+        bgmSourceNode.connect(gainNode).connect(audioContext.destination);
+        bgmSourceNode.start(0);
+
+    } else { // 効果音の場合
+        const sourceNode = audioContext.createBufferSource();
+        sourceNode.buffer = audioBuffer;
+        
+        const gainNode = audioContext.createGain();
+        if (soundName === 'clear' || soundName === 'gameOver' || soundName === 'land') gainNode.gain.value = 0.2;
+        if (soundName === 'click') gainNode.gain.value = 0.05;
+
+        sourceNode.connect(gainNode).connect(audioContext.destination);
+        sourceNode.start(0);
+    }
+}
+
+/**
+ * すべてのBGMを停止する
  */
 function stopAllBGM() {
-    Object.keys(soundsCache).forEach(soundName => {
-        const sound = soundsCache[soundName];
-        if (sound && sound.loop) {
-            sound.pause();
-        }
-    });
+    if (bgmSourceNode) {
+        bgmSourceNode.stop();
+        bgmSourceNode = null; // 管理変数をリセット
+    }
 }
 
 
@@ -805,6 +850,13 @@ function initializeEventListeners() {
     DOM.buttons.right.addEventListener("click", () => { if (!gameState.isProcessing && gameState.currentPuyoPair && canPuyoPairMove(1, 0)) { gameState.currentPuyoPair.pivot.x++; drawGame(); } });
     DOM.buttons.down.addEventListener("click", () => { if (!gameState.isProcessing && gameState.currentPuyoPair && canPuyoPairMove(0, 1)) { gameState.currentPuyoPair.pivot.y++; drawGame(); } });
     DOM.buttons.rotate.addEventListener("click", rotatePuyoPair);
+
+    const controlButtons = [DOM.buttons.left, DOM.buttons.right, DOM.buttons.down, DOM.buttons.rotate];
+    controlButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            playSound('click');
+        });
+    });
     
     document.addEventListener("keydown", handleKeyDown);
 
