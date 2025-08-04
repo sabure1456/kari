@@ -877,3 +877,21 @@ function initializeEventListeners() {
  * =================================================================
  */
 initializeEventListeners();
+
+/**
+ * =================================================================
+ * 初期化完了後のUI表示
+ * =================================================================
+ */
+// DOMの読み込みが完了した時点で実行
+document.addEventListener('DOMContentLoaded', () => {
+    const loadingScreen = document.getElementById('loading-screen');
+    const titleScreen = document.getElementById('title-screen');
+
+    if (loadingScreen) {
+        loadingScreen.style.display = 'none';
+    }
+    if (titleScreen) {
+        titleScreen.style.display = 'flex';
+    }
+});
