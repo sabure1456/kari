@@ -382,6 +382,9 @@ async function processChainReaction() {
         }
 
         gameState.score += scoreForThisChain;
+        if (gameState.score > 9999999) {
+            gameState.score = 9999999;
+        }
         updateScoreDisplay();
         showScorePopup(scoreForThisChain);
         
@@ -987,4 +990,3 @@ function initializeEventListeners() {
  * =================================================================
  */
 initializeEventListeners();
-
