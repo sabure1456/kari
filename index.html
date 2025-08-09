@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+  
   <button id="back-to-title-btn" class="btn-effect"><span>タイトルに戻る</span></button>
 
   <div id="title-screen" class="fullscreen-overlay">
@@ -66,34 +66,45 @@
       </div>
     </div>
   </div>
+  
 <div id="game-container" style="display: none;">
-    <div id="image-display-area"></div>
-    <div id="game-screen">
-      <p class="text-bg">← →：移動　↓：落下　↻：回転</p>
-      <canvas id="gameCanvas" width="480" height="960"></canvas>
-      <div id="controls">
-        <div class="main-controls">
-          <button id="left"><span>←</span></button>
-          <button id="down"><span>↓</span></button>
-          <button id="right"><span>→</span></button>
-          <button id="rotate"><span>↻</span></button>
-        </div>
-        </div>
-    </div>
-    <div id="side-panel">
-      <h3 class="text-bg">NEXT</h3>
-      <div class="canvas-bg">
-        <canvas id="nextCanvas" width="140" height="140"></canvas>
+  <div id="left-panel">
+      <div id="image-display-area"></div>
+      <button id="pause-btn" class="btn-effect"><span>ポーズ</span></button>
+  </div>
+  <div id="game-screen">
+    <p class="text-bg">← →：移動　↓：落下　↻：回転</p>
+    <canvas id="gameCanvas" width="480" height="960"></canvas>
+    <div id="controls">
+      <div class="main-controls">
+        <button id="left"><span>←</span></button>
+        <button id="down"><span>↓</span></button>
+        <button id="right"><span>→</span></button>
+        <button id="rotate"><span>↻</span></button>
       </div>
-      <h3 class="text-bg">食べた量</h3>
-      <p id="score-display">0g</p>
-      <div id="score-popup-container"></div>
-      
-      <button id="ingame-back-to-title-btn" class="btn-effect"><span>タイトルに戻る</span></button>
-      <button id="reset" class="btn-effect"><span>おかわり(最初から)</span></button>
     </div>
   </div>
+  <div id="side-panel">
+    <h3 class="text-bg">NEXT</h3>
+    <div class="canvas-bg">
+      <canvas id="nextCanvas" width="140" height="140"></canvas>
+    </div>
+    <h3 class="text-bg">食べた量</h3>
+    <p id="score-display">0g</p>
+    <div id="score-popup-container"></div>
+    <button id="ingame-back-to-title-btn" class="btn-effect"><span>タイトルに戻る</span></button>
+    <button id="reset" class="btn-effect"><span>おかわり(最初から)</span></button>
+  </div>
+</div>
 
+<div id="pause-popup" class="fullscreen-overlay" style="display: none;">
+    <div class="popup-content">
+      <div class="button-group vertical">
+        <button id="resume-btn" class="btn-effect"><span>ゲームを続ける</span></button>
+        <button id="pause-back-to-title-btn" class="btn-effect"><span>タイトルに戻る</span></button>
+      </div>
+    </div>
+  </div>
   <script src="game.js" defer></script>
 </body>
 </html>
