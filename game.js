@@ -13,6 +13,7 @@ const DOM = {
     puyoChoicesContainer: document.getElementById('puyo-choices-container'),
     confirmationPopup: document.getElementById('confirmation-popup'),
     gameOverPopup: document.getElementById('game-over-popup'),
+    pausePopup: document.getElementById('pause-popup'),
     finalScoreText: document.getElementById('final-score-text'),
     scoreDisplay: document.getElementById("score-display"),
     scorePopupContainer: document.getElementById("score-popup-container"),
@@ -30,6 +31,9 @@ const DOM = {
         confirmNo: document.getElementById('confirm-no-btn'),
         gameOverRetry: document.getElementById('game-over-retry-btn'),
         gameOverTitle: document.getElementById('game-over-title-btn'),
+        pause: document.getElementById('pause-btn'),
+        resume: document.getElementById('resume-btn'),
+        pauseBackToTitle: document.getElementById('pause-back-to-title-btn'),
         ingameReset: document.getElementById("reset"),
         left: document.getElementById("left"),
         right: document.getElementById("right"),
@@ -52,13 +56,13 @@ let bgmSourceNode;
 
 // 音声ファイルのパス
 const SOUND_PATHS = {
-    titleBGM: 'audio/title_bgm.mp3',
-    renModeBGM: 'audio/mode_ren_bgm.mp3',
-    friendsModeBGM: 'audio/mode_friends_bgm.mp3',
-    clear: 'audio/puyo_clear.mp3',
-    gameOver: 'audio/game_over.mp3',
-    click: 'audio/click.mp3',
-    land: 'audio/puyo_falled.mp3'
+    titleBGM: 'sounds/title_bgm.mp3',
+    renModeBGM: 'sounds/mode_ren_bgm.mp3',
+    friendsModeBGM: 'sounds/mode_friends_bgm.mp3',
+    clear: 'sounds/puyo_clear.mp3',
+    gameOver: 'sounds/game_over.mp3',
+    click: 'sounds/click.mp3',
+    land: 'sounds/puyo_falled.mp3'
 };
 // 読み込んだAudioオブジェクトを保存（キャッシュ）する場所
 const soundsCache = {};
@@ -114,6 +118,8 @@ let gameState = {
     score: 0,
     isGameOver: false,
     isProcessing: false,
+    isPaused: false,
+    gameLoopTimeoutId: null,
     selectedMode: '',
     gameSpeed: CONFIG.GAME_SPEEDS.normal,
     puyoTypesInUse: [],
@@ -242,6 +248,7 @@ function goBackToTitle() {
         clearTimeout(gameState.gameLoopTimeoutId);
     }
     gameState.isGameOver = true;
+    gameState.isPaused = false;
     stopAllBGM();
     playSound('titleBGM', true);
 
@@ -249,6 +256,7 @@ function goBackToTitle() {
     DOM.puyoSelectionScreen.style.display = 'none';
     DOM.gameContainer.style.display = 'none';
     DOM.gameOverPopup.style.display = 'none';
+    DOM.pausePopup.style.display = 'none';
     DOM.backToTitleBtn.style.display = 'none';
     DOM.titleScreen.style.display = 'flex';
 }
@@ -411,6 +419,9 @@ async function processChainReaction() {
 }
 
 async function gameLoop() {
+    if (gameState.isPaused) {
+        return;
+    }
     if (gameState.isGameOver) return;
 
     if (gameState.isProcessing) {
@@ -690,6 +701,29 @@ function checkGameOver() {
 
 /**
  * =================================================================
+ * ポーズ処理
+ * =================================================================
+ */
+function pauseGame() {
+    if (gameState.isGameOver) return;
+
+    gameState.isPaused = true;
+    // ゲームループを明確に停止
+    if (gameState.gameLoopTimeoutId) {
+        clearTimeout(gameState.gameLoopTimeoutId);
+    }
+
+    DOM.pausePopup.style.display = 'flex';
+}
+
+function resumeGame() {
+    gameState.isPaused = false;
+    DOM.pausePopup.style.display = 'none';
+    gameLoop();
+}
+
+/**
+ * =================================================================
  * イベントハンドラ
  * =================================================================
  */
@@ -730,7 +764,7 @@ function handlePuyoChoiceClick(e) {
 }
 
 function handleKeyDown(e) {
-    if (gameState.isGameOver || gameState.isProcessing || !gameState.currentPuyoPair) return;
+    if (gameState.isGameOver || gameState.isProcessing || !gameState.currentPuyoPair || gameState.isPaused) return;
 
     let moved = false;
     switch (e.key) {
@@ -843,6 +877,21 @@ function initializeEventListeners() {
             playSound('friendsModeBGM', true);
         }
         restartGame();
+    });
+     DOM.buttons.pause.addEventListener('click', () => {
+        playSound('click');
+        pauseGame();
+    });
+    DOM.buttons.resume.addEventListener('click', () => {
+        playSound('click');
+        resumeGame();
+    });
+    DOM.buttons.pauseBackToTitle.addEventListener('click', () => {
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+        playSound('click');
+        goBackToTitle();
     });
     DOM.buttons.ingameReset.addEventListener("click", restartGame);
 
